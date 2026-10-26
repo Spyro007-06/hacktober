@@ -92,6 +92,27 @@ const sessions = new Map() // id -> { session, rounds }
 const drafts = new Map() // id -> draft record (internal)
 const complaints = seedComplaints()
 
+// Mock mode only: sessions and filed complaints survive a page refresh so session recovery can be
+// demoed. Drafts (names, addresses) are never persisted; a refresh on Draft returns to Route anyway.
+const MOCK_KEY = 'kural.mock'
+try {
+  const saved = JSON.parse(globalThis.sessionStorage?.getItem(MOCK_KEY) ?? 'null')
+  if (saved) {
+    seq = saved.seq
+    for (const [id, rec] of saved.sessions) sessions.set(id, rec)
+    complaints.splice(0, complaints.length, ...saved.complaints)
+  }
+} catch {
+  // No storage (Node self-check, private mode): start fresh.
+}
+function saveMock() {
+  try {
+    globalThis.sessionStorage?.setItem(MOCK_KEY, JSON.stringify({ seq, sessions: [...sessions], complaints }))
+  } catch {
+    // ignore
+  }
+}
+
 function seedComplaints() {
   const t = today()
   const row = (id, title, route, category, location_text, filedAgo, days, status) => ({
@@ -189,6 +210,7 @@ export function createSession({ text, photos = [] }) {
     ]
   }
   sessions.set(session.session_id, { session, rounds: 0 })
+  saveMock()
   return clone(session)
 }
 
@@ -211,6 +233,7 @@ export function answerSession(id, { answers = {}, confirm_photo_mismatch = false
       Object.assign(s, { status: 'ready', decision: clone(DECISIONS.cm_helpline), follow_up_questions: [] })
     }
   }
+  saveMock()
   return clone(s)
 }
 
@@ -339,6 +362,7 @@ export function fileComplaint({ draft_id, filed_on }) {
     parent_complaint_id: d.parent_complaint_id,
   }
   complaints.push(c)
+  saveMock()
   return publicComplaint(c)
 }
 
@@ -367,6 +391,7 @@ export function escalateComplaint(id) {
   const overdue = c.status === 'overdue' || (c.status === 'filed' && c.due_on < today())
   if (!overdue) throw new ApiError('BAD_INPUT', 400, 'only overdue complaints can be escalated')
   c.status = 'escalated'
+  saveMock()
   return storeDraft({
     decision: { route: 'cm_helpline', rule_id: 'R4', escalation_level: 2 },
     category: c.category,

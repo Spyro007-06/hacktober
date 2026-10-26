@@ -2,6 +2,7 @@ import { Link, NavLink } from 'react-router-dom'
 import { ClipboardList, MessageSquarePlus } from 'lucide-react'
 import { useLanguage } from '../../context/LanguageContext'
 import useHealth from '../../hooks/useHealth'
+import Segmented from '../ui/Segmented'
 
 const NAV = [
   { to: '/', key: 'nav.new', icon: MessageSquarePlus, end: true },
@@ -37,28 +38,6 @@ function ServiceStatus() {
   )
 }
 
-function LanguageSwitch() {
-  const { t, uiLang, setUiLang } = useLanguage()
-  return (
-    <div role="group" aria-label={t('lang.toggle')} className="flex rounded-control border-2 border-line bg-surface p-1">
-      {['ta', 'en'].map((code) => (
-        <button
-          key={code}
-          type="button"
-          lang={code}
-          aria-pressed={uiLang === code}
-          onClick={() => setUiLang(code)}
-          className={`min-h-11 min-w-12 rounded-[10px] px-2.5 text-base sm:px-3 font-semibold transition-colors duration-150 ${
-            uiLang === code ? 'bg-primary text-white' : 'text-muted hover:bg-primary-soft hover:text-primary-deep'
-          }`}
-        >
-          {t(`lang.${code}`)}
-        </button>
-      ))}
-    </div>
-  )
-}
-
 function NavItems({ className, itemClassName }) {
   const { t } = useLanguage()
   return (
@@ -69,7 +48,7 @@ function NavItems({ className, itemClassName }) {
           to={to}
           end={end}
           className={({ isActive }) =>
-            `flex min-h-12 items-center justify-center gap-2 whitespace-nowrap rounded-control px-2 font-semibold sm:px-4 transition-colors duration-150 ${itemClassName} ${
+            `flex min-h-12 items-center justify-center gap-2 whitespace-nowrap rounded-control px-2 font-semibold transition-colors duration-150 sm:px-4 ${itemClassName} ${
               isActive ? 'bg-primary-soft text-primary-deep' : 'text-muted hover:bg-primary-soft/60 hover:text-ink'
             }`
           }
@@ -83,7 +62,7 @@ function NavItems({ className, itemClassName }) {
 }
 
 export default function AppHeader() {
-  const { t } = useLanguage()
+  const { t, uiLang, setUiLang } = useLanguage()
   return (
     <header className="sticky top-0 z-20 border-b border-line bg-surface/95 backdrop-blur-sm">
       <div className="mx-auto flex max-w-wide items-center gap-3 px-4 py-2.5 sm:gap-4 sm:px-6">
@@ -97,7 +76,15 @@ export default function AppHeader() {
         <NavItems className="ml-auto hidden gap-1 md:flex" />
         <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3 md:ml-0">
           <ServiceStatus />
-          <LanguageSwitch />
+          <Segmented
+            label={t('lang.toggle')}
+            value={uiLang}
+            onChange={setUiLang}
+            options={[
+              { value: 'ta', label: t('lang.ta'), lang: 'ta' },
+              { value: 'en', label: t('lang.en'), lang: 'en' },
+            ]}
+          />
         </div>
       </div>
       <NavItems className="grid grid-cols-2 gap-1 border-t border-line px-2 py-1.5 md:hidden" itemClassName="text-base" />
