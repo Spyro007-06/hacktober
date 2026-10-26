@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Node
+node_modules/
+dist/
+
+# Secrets and runtime data
+.env
+backend/storage/*
+!backend/storage/.gitkeep
+*.db
