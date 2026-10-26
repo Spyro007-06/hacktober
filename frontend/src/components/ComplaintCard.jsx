@@ -24,15 +24,15 @@ export default function ComplaintCard({ complaint: c, onEscalate, escalating, di
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 space-y-1">
-          <h2 id={`c-${c.id}`} className="text-lg font-bold">
+          <h2 id={`c-${c.id}`} className="text-card font-bold">
             {c.title}
           </h2>
-          {c.route && <p className="text-sm text-muted">{t(`route.${c.route}`)}</p>}
+          {c.route && <p className="text-support text-muted">{t(`route.${c.route}`)}</p>}
         </div>
         <StatusBadge status={c.status} />
       </div>
 
-      <dl className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-3">
+      <dl className="grid grid-cols-2 gap-3 text-support sm:grid-cols-3">
         <div>
           <dt className="text-muted">{t('complaints.filedOn')}</dt>
           <dd className="font-semibold">{formatDate(c.filed_on, uiLang)}</dd>
@@ -44,7 +44,7 @@ export default function ComplaintCard({ complaint: c, onEscalate, escalating, di
         {days && (
           <div className="col-span-2 sm:col-span-1">
             <dt className="sr-only">{t('complaints.daysLabel')}</dt>
-            <dd className={`text-base font-bold ${overdue ? 'text-danger' : 'text-primary-deep'}`}>{days}</dd>
+            <dd className={`text-base font-bold ${overdue ? 'text-danger' : 'text-heading'}`}>{days}</dd>
           </div>
         )}
       </dl>

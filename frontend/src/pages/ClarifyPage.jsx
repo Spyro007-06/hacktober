@@ -32,7 +32,7 @@ function NeedsInfo({ focusHeading }) {
       }}
     >
       <div className="space-y-3">
-        <p className="inline-flex rounded-control bg-accent-soft px-3 py-1 text-sm font-semibold text-accent-ink">
+        <p className="inline-flex rounded-control border border-primary bg-primary-soft px-3 py-1 text-support font-bold text-primary-ink">
           {t('clarify.round', { n: Math.min(rounds + 1, 2) })}
         </p>
         <PageHeading title={t('clarify.title')} intro={t('clarify.intro')} focus={focusHeading} />
@@ -91,7 +91,7 @@ function NotCivic({ focusHeading }) {
     <div className="space-y-8">
       <PageHeading title={t('notCivic.title')} focus={focusHeading} />
       <div className="flex gap-4 rounded-card border border-line bg-surface p-5 shadow-card sm:p-6">
-        <CircleHelp className="mt-0.5 size-7 shrink-0 text-primary" aria-hidden="true" />
+        <CircleHelp className="mt-0.5 size-7 shrink-0 text-heading" aria-hidden="true" />
         <p className="text-lg">{t('notCivic.message')}</p>
       </div>
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">

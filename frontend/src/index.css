@@ -2,25 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
-/* KURAL — Humane Civic Intelligence: design tokens (RGB channels for Tailwind alpha support). */
+/*
+ * KURAL — "Manjal & Ink": turmeric (manjal) on ink and stone.
+ * Neutral chrome; turmeric is the one action colour and always carries ink text (never white);
+ * cobalt is reserved for information and links. No gradients.
+ * Tokens are RGB channels so Tailwind can apply opacity (bg-primary/20). Mapped in tailwind.config.js.
+ * scripts/check-contrast.mjs asserts the WCAG ratios of the pairs used below.
+ */
 :root {
-  --bg: 250 248 242;          /* #FAF8F2 warm ivory */
-  --surface: 255 255 255;
-  --ink: 32 41 35;            /* #202923 */
-  --muted: 98 107 100;        /* #626B64 */
-  --line: 227 229 220;        /* #E3E5DC */
-  --primary: 36 92 69;        /* #245C45 forest green */
-  --primary-deep: 24 61 48;   /* #183D30 */
-  --primary-soft: 232 240 232;/* #E8F0E8 */
-  --accent: 221 166 91;       /* #DDA65B — fills and highlights only, never body text */
-  --accent-soft: 250 239 220;
-  --accent-ink: 122 78 18;    /* text on accent-soft */
-  --danger: 165 29 45;        /* #A51D2D */
-  --danger-soft: 252 236 236;
-  --warning: 138 90 0;        /* #8A5A00 */
-  --warning-soft: 253 243 222;
-  --success: 30 110 60;       /* #1E6E3C */
-  --success-soft: 230 243 234;
+  --color-background: 245 245 242;   /* #F5F5F2 stone */
+  --color-surface: 255 255 255;
+  --color-surface-muted: 236 236 232;/* #ECECE8 grouped panels */
+  --color-primary: 247 181 0;        /* #F7B500 turmeric: action fills only; label is always heading ink */
+  --color-primary-hover: 224 160 0;  /* #E0A000 */
+  --color-primary-soft: 255 241 199; /* #FFF1C7 selected and hover states */
+  --color-primary-ink: 122 81 0;     /* #7A5100 turmeric as text or icon on light surfaces */
+  --color-heading: 23 21 15;         /* #17150F ink: headings, current step, focus ring */
+  --color-text: 43 41 38;            /* #2B2926 */
+  --color-text-muted: 94 90 84;      /* #5E5A54 */
+  --color-border: 221 219 213;       /* #DDDBD5 separators and card edges */
+  --color-border-strong: 133 129 122;/* #85817A control edges: 3:1 against surfaces (WCAG 1.4.11) */
+  --color-success: 31 122 62;        /* #1F7A3E */
+  --color-success-soft: 227 243 232;
+  --color-warning: 143 63 0;         /* #8F3F00 */
+  --color-warning-soft: 253 230 210;
+  --color-danger: 192 39 39;         /* #C02727 */
+  --color-danger-soft: 252 232 232;
+  --color-info: 29 95 191;           /* #1D5FBF cobalt */
+  --color-info-soft: 227 237 251;
 
   color-scheme: light;
 }
@@ -33,9 +42,10 @@
   }
 
   body {
-    @apply bg-bg text-ink font-sans antialiased;
+    @apply bg-background font-sans text-text antialiased;
     line-height: 1.6;
     min-height: 100dvh;
+    font-feature-settings: 'kern', 'liga';
   }
 
   /* Tamil glyphs are taller; give them room so they never clip. */
@@ -44,10 +54,13 @@
     line-height: 1.75;
   }
 
-  h1, h2, h3 {
-    @apply text-ink;
-    line-height: 1.3;
+  h1,
+  h2,
+  h3 {
+    @apply font-bold text-heading;
+    line-height: 1.25;
     text-wrap: balance;
+    overflow-wrap: break-word; /* a very long Tamil word wraps instead of pushing the page sideways */
   }
 
   :lang(ta) h1,
@@ -56,10 +69,24 @@
     line-height: 1.5;
   }
 
+  /* Tight tracking suits Manrope's Latin display sizes only; Tamil keeps its natural spacing. */
+  :lang(en) h1 {
+    letter-spacing: -0.02em;
+  }
+  :lang(en) h2,
+  :lang(en) h3 {
+    letter-spacing: -0.01em;
+  }
+
   :focus-visible {
-    outline: 3px solid rgb(var(--primary));
+    outline: 3px solid rgb(var(--color-heading)); /* ink: turmeric would vanish on white */
     outline-offset: 3px;
     border-radius: 6px;
+  }
+
+  ::selection {
+    background: rgb(var(--color-primary-soft));
+    color: rgb(var(--color-heading));
   }
 }
 

@@ -5,7 +5,7 @@ export default function Segmented({ label, labelId, options, value, onChange, di
       role="group"
       aria-label={labelId ? undefined : label}
       aria-labelledby={labelId}
-      className="inline-flex rounded-control border-2 border-line bg-surface p-1"
+      className="inline-flex rounded-control border-2 border-line-strong bg-surface p-0.5"
     >
       {options.map((o) => (
         <button
@@ -15,8 +15,8 @@ export default function Segmented({ label, labelId, options, value, onChange, di
           aria-pressed={value === o.value}
           disabled={disabled}
           onClick={() => onChange(o.value)}
-          className={`min-h-11 min-w-12 rounded-[10px] px-2.5 text-base font-semibold transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-55 sm:px-3 ${
-            value === o.value ? 'bg-primary text-white' : 'text-muted hover:bg-primary-soft hover:text-primary-deep'
+          className={`min-h-11 min-w-12 rounded-[10px] px-2.5 text-[0.9444rem] font-bold transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-55 sm:px-3 ${
+            value === o.value ? 'bg-heading text-white' : 'text-muted hover:bg-primary-soft hover:text-heading'
           }`}
         >
           {o.label}

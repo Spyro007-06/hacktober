@@ -33,14 +33,14 @@ export default function DonePage({ focusHeading }) {
         <dl className="grid gap-px overflow-hidden rounded-card border border-line bg-line sm:grid-cols-2">
           {filed?.id && (
             <div className="bg-surface p-5">
-              <dt className="text-sm font-semibold text-muted">{t('done.referenceLabel')}</dt>
-              <dd className="mt-1 text-xl font-bold tabular-nums">{filed.id}</dd>
+              <dt className="text-support font-semibold text-muted">{t('done.referenceLabel')}</dt>
+              <dd className="mt-1 text-card font-bold tabular-nums">{filed.id}</dd>
             </div>
           )}
           {due && (
             <div className="bg-surface p-5">
-              <dt className="text-sm font-semibold text-muted">{t('done.dueLabel')}</dt>
-              <dd className="mt-1 text-xl font-bold">{due}</dd>
+              <dt className="text-support font-semibold text-muted">{t('done.dueLabel')}</dt>
+              <dd className="mt-1 text-card font-bold">{due}</dd>
             </div>
           )}
         </dl>
@@ -48,7 +48,7 @@ export default function DonePage({ focusHeading }) {
 
       {steps && (
         <section aria-labelledby="done-next" className="rounded-card border border-line bg-surface p-5 shadow-card">
-          <h2 id="done-next" className="text-lg font-bold">
+          <h2 id="done-next" className="text-card font-bold">
             {t('nextSteps.title')}
           </h2>
           <p className="mt-2" lang={uiLang}>

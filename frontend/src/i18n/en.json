@@ -181,5 +181,8 @@
   "net.offline": "No internet connection",
   "location.title": "Location",
   "location.hint": "Helps find the right ward office.",
-  "location.remove": "Remove location"
+  "location.remove": "Remove location",
+  "step.state.done": "Completed",
+  "step.state.current": "Current step",
+  "step.state.todo": "Upcoming"
 }

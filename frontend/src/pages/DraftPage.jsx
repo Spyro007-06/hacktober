@@ -25,11 +25,11 @@ export default function DraftPage({ focusHeading }) {
 
       {dept && (
         <section aria-label={t('draft.sendTo')} className="flex gap-4 rounded-card border border-line bg-surface p-5 shadow-card sm:p-6">
-          <span className="flex size-12 shrink-0 items-center justify-center rounded-control bg-primary-soft text-primary">
+          <span className="flex size-12 shrink-0 items-center justify-center rounded-control bg-surface-muted text-heading">
             <Landmark className="size-6" aria-hidden="true" />
           </span>
           <div className="min-w-0 space-y-1">
-            <p className="text-sm font-semibold text-muted">
+            <p className="text-support font-semibold text-muted">
               {t('draft.sendTo')} · {t(`route.${route}`)}
             </p>
             <p className="text-lg font-semibold">{dept.name}</p>
@@ -63,8 +63,8 @@ export default function DraftPage({ focusHeading }) {
 
       {draft.next_steps && <NextSteps nextSteps={draft.next_steps} uiLang={uiLang} />}
 
-      <section aria-labelledby="file-title" className="space-y-4 rounded-card bg-primary-deep p-5 text-white sm:p-7">
-        <h2 id="file-title" className="text-xl font-bold text-white">
+      <section aria-labelledby="file-title" className="space-y-4 rounded-card bg-heading p-5 text-white sm:p-7">
+        <h2 id="file-title" className="text-card font-bold text-white">
           {t('filed.title')}
         </h2>
         <p className="text-white/85">{t('filed.explain')}</p>
@@ -76,7 +76,7 @@ export default function DraftPage({ focusHeading }) {
           onClick={markFiled}
           loading={filing}
           disabled={Boolean(pending)}
-          className="!bg-surface !text-primary-deep hover:!bg-primary-soft"
+          className="focus-visible:outline-white"
         >
           {t('btn.markFiled')}
         </Button>

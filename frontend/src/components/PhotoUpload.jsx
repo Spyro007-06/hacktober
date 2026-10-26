@@ -4,6 +4,7 @@ import { Camera, Images, X } from 'lucide-react'
 import { MAX_PHOTOS, useComplaint } from '../context/ComplaintContext'
 import { useLanguage } from '../context/LanguageContext'
 import Button from './ui/Button'
+import Banner from './ui/Banner'
 
 export default function PhotoUpload() {
   const { t } = useLanguage()
@@ -27,11 +28,11 @@ export default function PhotoUpload() {
   return (
     <section aria-labelledby="photos-title" className="space-y-4">
       <div>
-        <div className="flex items-baseline justify-between gap-3">
-          <h2 id="photos-title" className="text-xl font-bold">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+          <h2 id="photos-title" className="text-section font-bold">
             {t('photos.title')}
           </h2>
-          <span className="text-sm text-muted">{t('form.optional')}</span>
+          <span className="text-support text-muted">{t('form.optional')}</span>
         </div>
         <p className="mt-1 text-muted">{t('photos.hint')}</p>
       </div>
@@ -55,7 +56,7 @@ export default function PhotoUpload() {
                   onClick={() => removePhoto(photo.id)}
                   disabled={Boolean(pending)}
                   aria-label={t('photos.remove', { n: i + 1 })}
-                  className="absolute right-1.5 top-1.5 flex size-11 items-center justify-center rounded-full bg-ink/75 text-white transition-colors hover:bg-ink disabled:opacity-50"
+                  className="absolute right-1.5 top-1.5 flex size-11 items-center justify-center rounded-full bg-heading/75 text-white transition-colors hover:bg-heading disabled:opacity-50"
                 >
                   <X className="size-5" aria-hidden="true" />
                 </button>
@@ -76,13 +77,13 @@ export default function PhotoUpload() {
         <input ref={galleryRef} type="file" accept="image/*" multiple hidden onChange={onFiles} />
       </div>
 
-      <p className="text-sm text-muted" aria-live="polite">
+      <p className="text-support text-muted" aria-live="polite">
         {remaining > 0 ? t('photos.remaining', { n: remaining }) : t('photos.max')}
       </p>
       {notice && (
-        <p role="alert" className="rounded-control bg-warning-soft px-4 py-3 text-warning">
+        <Banner tone="warning" compact>
           {notice}
-        </p>
+        </Banner>
       )}
     </section>
   )

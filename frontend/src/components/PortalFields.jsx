@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Check, Copy } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
+import Banner from './ui/Banner'
 
 async function copyText(text) {
   try {
@@ -54,7 +55,7 @@ export default function PortalFields({ fields }) {
   return (
     <section aria-labelledby="portal-title" className="space-y-4">
       <div>
-        <h2 id="portal-title" className="text-xl font-bold">
+        <h2 id="portal-title" className="text-section font-bold">
           {t('portal.title')}
         </h2>
         <p className="mt-1 text-muted">{t('portal.intro')}</p>
@@ -65,14 +66,14 @@ export default function PortalFields({ fields }) {
           return (
             <div key={label} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-start sm:gap-4 sm:p-5">
               <div className="min-w-0 flex-1">
-                <dt className="text-sm font-semibold text-muted">{label}</dt>
+                <dt className="text-support font-semibold text-muted">{label}</dt>
                 <dd ref={(el) => (valueRefs.current[label] = el)} className="mt-1 whitespace-pre-wrap break-words">
                   {value || '—'}
                 </dd>
                 {failed === label && (
-                  <p role="alert" className="mt-2 text-sm text-warning">
+                  <Banner tone="warning" compact className="mt-2">
                     {t('portal.copyFailed')}
-                  </p>
+                  </Banner>
                 )}
               </div>
               <button
@@ -81,7 +82,7 @@ export default function PortalFields({ fields }) {
                 disabled={!value}
                 aria-label={isCopied ? t('btn.copied') : t('portal.copyLabel', { field: label })}
                 className={`inline-flex min-h-12 min-w-[7.5rem] shrink-0 items-center justify-center gap-2 rounded-control border-2 px-4 font-semibold transition-colors duration-150 disabled:opacity-40 ${
-                  isCopied ? 'border-success bg-success-soft text-success' : 'border-line bg-surface text-primary-deep hover:border-primary hover:bg-primary-soft'
+                  isCopied ? 'border-success bg-success-soft text-success' : 'border-line bg-surface text-heading hover:border-heading hover:bg-primary-soft'
                 }`}
               >
                 <AnimatePresence mode="wait" initial={false}>

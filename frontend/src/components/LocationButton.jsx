@@ -3,6 +3,7 @@ import { Check, MapPin, X } from 'lucide-react'
 import { useComplaint } from '../context/ComplaintContext'
 import { useLanguage } from '../context/LanguageContext'
 import Button from './ui/Button'
+import Banner from './ui/Banner'
 
 /** Optional. Geolocation is requested only when the user taps the button; failure never blocks Continue. */
 export default function LocationButton() {
@@ -25,16 +26,16 @@ export default function LocationButton() {
 
   return (
     <section aria-labelledby="loc-title" className="space-y-3">
-      <div className="flex items-baseline justify-between gap-3">
-        <h2 id="loc-title" className="text-xl font-bold">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+        <h2 id="loc-title" className="text-section font-bold">
           {t('location.title')}
         </h2>
-        <span className="text-sm text-muted">{t('form.optional')}</span>
+        <span className="text-support text-muted">{t('form.optional')}</span>
       </div>
       <p className="text-muted">{t('location.hint')}</p>
 
       {location ? (
-        <div className="flex flex-wrap items-center gap-3 rounded-control bg-success-soft px-4 py-2" role="status">
+        <div className="flex flex-wrap items-center gap-3 rounded-control border border-success/30 bg-success-soft px-4 py-2" role="status">
           <Check className="size-5 text-success" strokeWidth={3} aria-hidden="true" />
           <span className="font-semibold text-success">{t('location.got')}</span>
           <button
@@ -54,9 +55,9 @@ export default function LocationButton() {
       )}
 
       {status === 'denied' && !location && (
-        <p role="alert" className="rounded-control bg-warning-soft px-4 py-3 text-warning">
+        <Banner tone="warning" compact>
           {t('location.denied')}
-        </p>
+        </Banner>
       )}
     </section>
   )

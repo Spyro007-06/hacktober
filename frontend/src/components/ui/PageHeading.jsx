@@ -11,11 +11,11 @@ export default function PageHeading({ title, intro, focus = false }) {
   }, [focus])
 
   return (
-    <header className="space-y-2">
-      <h1 ref={ref} tabIndex={-1} className="text-[1.6rem] font-bold focus:outline-none sm:text-4xl">
+    <header className="space-y-2.5">
+      <h1 ref={ref} tabIndex={-1} className="text-page font-bold focus:outline-none">
         {title}
       </h1>
-      {intro && <p className="text-lg text-muted">{intro}</p>}
+      {intro && <p className="max-w-prose text-lg text-muted">{intro}</p>}
     </header>
   )
 }

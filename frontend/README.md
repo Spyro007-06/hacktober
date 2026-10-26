@@ -18,7 +18,9 @@ Mock mode is on unless `VITE_USE_MOCKS=false` (set by `.env.real` / `--mode real
 - `src/api/mocks.js` – deterministic in-memory backend used in mock mode.
 - `src/i18n/{ta,en}.json` – all UI strings, same keys. Tamil is the default.
 - `src/context/LanguageContext.jsx` – UI language and `t(key, vars)`.
-- `src/components/ui/` – Button, Field (Input/Textarea), ErrorBanner, LoadingState.
 - `src/components/layout/` – AppHeader, StepIndicator.
-- Design tokens: CSS variables in `src/index.css`, mapped in `tailwind.config.js`.
-- Fonts: Noto Sans + Noto Sans Tamil bundled via `@fontsource` (no network needed).
+- Design tokens ("Manjal & Ink": turmeric action colour, ink text, stone neutrals, cobalt for info): `--color-*` variables in `src/index.css`,
+  mapped in `tailwind.config.js`. `npm run check` also asserts their WCAG contrast (`scripts/check-contrast.mjs`).
+- Type scale: Tailwind sizes `text-page`, `text-section`, `text-card`, `text-label`, `text-support`, `text-badge` (root is 18px).
+- Fonts: Manrope (English) and Noto Sans Tamil (Tamil) bundled via `@fontsource`; no network needed.
+- Shared UI: Button, Field (Input/Textarea), Banner, ErrorBanner, StatusBadge, Segmented, EmptyState, LoadingState.
