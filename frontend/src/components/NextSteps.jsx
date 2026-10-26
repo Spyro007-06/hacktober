@@ -3,6 +3,7 @@ import { Square, Volume2 } from 'lucide-react'
 import { tts } from '../api/client'
 import { useLanguage } from '../context/LanguageContext'
 import Button from './ui/Button'
+import Banner from './ui/Banner'
 
 const sentences = (text) => (text ?? '').split(/(?<=[.!?])\s+/).map((s) => s.trim()).filter(Boolean)
 
@@ -62,7 +63,7 @@ export default function NextSteps({ nextSteps, uiLang }) {
 
   return (
     <section aria-labelledby="next-title" className="space-y-4">
-      <h2 id="next-title" className="text-xl font-bold">
+      <h2 id="next-title" className="text-section font-bold">
         {t('nextSteps.title')}
       </h2>
       <div className="grid gap-4 md:grid-cols-2">
@@ -73,9 +74,9 @@ export default function NextSteps({ nextSteps, uiLang }) {
             const state = playing.lang === lang ? playing.status : 'idle'
             return (
               <div key={lang} lang={lang} className="flex flex-col gap-4 rounded-card border border-line bg-surface p-5 shadow-card">
-                <p className="text-sm font-semibold text-muted">{t(`lang.${lang}`)}</p>
+                <p className="text-support font-semibold text-muted">{t(`lang.${lang}`)}</p>
                 {items.length > 1 ? (
-                  <ol className="list-decimal space-y-2 pl-6 marker:font-semibold marker:text-primary">
+                  <ol className="list-decimal space-y-2 pl-6 marker:font-semibold marker:text-primary-ink">
                     {items.map((s, i) => (
                       <li key={i}>{s}</li>
                     ))}
@@ -99,9 +100,9 @@ export default function NextSteps({ nextSteps, uiLang }) {
           })}
       </div>
       {failed && (
-        <p role="alert" className="rounded-control bg-warning-soft px-4 py-3 text-warning">
+        <Banner tone="warning" compact>
           {t('nextSteps.playFailed')}
-        </p>
+        </Banner>
       )}
     </section>
   )

@@ -254,9 +254,9 @@ function renderDraft(d) {
     : ''
 
   const html = `<!doctype html><html><head><meta charset="utf-8"><style>
-body{font-family:"Noto Sans Tamil","Noto Sans",sans-serif;color:#202923;margin:0;padding:40px 44px;line-height:1.7;font-size:15px}
-h1{font-size:18px;margin:0 0 4px}h2{font-size:15px;margin:28px 0 6px;color:#245C45}
-.meta{color:#626B64;font-size:13px}.block{margin:18px 0}hr{border:0;border-top:1px solid #E3E5DC;margin:28px 0}
+body{font-family:"Noto Sans Tamil","Noto Sans",sans-serif;color:#2B2926;margin:0;padding:40px 44px;line-height:1.7;font-size:15px}
+h1{font-size:18px;margin:0 0 4px}h2{font-size:15px;margin:28px 0 6px;color:#7A5100}
+.meta{color:#5E5A54;font-size:13px}.block{margin:18px 0}hr{border:0;border-top:1px solid #DDDBD5;margin:28px 0}
 .sign{margin-top:36px}
 </style></head><body>
 <p class="meta">${escapeHtml(d.created_on)} · ${escapeHtml(d.draft_id)}</p>

@@ -181,5 +181,8 @@
   "net.offline": "இணைய இணைப்பு இல்லை",
   "location.title": "இருப்பிடம்",
   "location.hint": "சரியான வார்டு அலுவலகத்தைக் கண்டறிய உதவும்.",
-  "location.remove": "இருப்பிடத்தை நீக்கு"
+  "location.remove": "இருப்பிடத்தை நீக்கு",
+  "step.state.done": "முடிந்தது",
+  "step.state.current": "தற்போதைய படி",
+  "step.state.todo": "அடுத்து வருவது"
 }

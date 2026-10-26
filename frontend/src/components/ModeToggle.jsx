@@ -1,9 +1,17 @@
 import { useEffect, useId, useRef, useState } from 'react'
-import { Wifi, WifiOff } from 'lucide-react'
+import { CircleAlert, CircleCheck, LoaderCircle, Wifi, WifiOff } from 'lucide-react'
 import { errorKey, setMode } from '../api/client'
 import { useLanguage } from '../context/LanguageContext'
 import useHealth from '../hooks/useHealth'
 import Segmented from './ui/Segmented'
+import Banner from './ui/Banner'
+
+// Shape, not just colour: a check, an alert or a spinner.
+function StatusIcon({ status, className }) {
+  if (status === 'ready') return <CircleCheck className={`${className} text-success`} aria-hidden="true" />
+  if (status === 'down') return <CircleAlert className={`${className} text-danger`} aria-hidden="true" />
+  return <LoaderCircle className={`${className} animate-spin text-muted`} aria-hidden="true" />
+}
 
 function useNetworkOnline() {
   const [online, setOnline] = useState(navigator.onLine)
@@ -21,7 +29,7 @@ function useNetworkOnline() {
 }
 
 /**
- * Header service button: a status dot that opens a small panel with
+ * Header service button: a status icon that opens a small panel with
  * - Kural server status (GET /api/health),
  * - AI mode switch (PUT /api/config/mode; 503 reverts),
  * - internet connectivity, shown separately so "offline AI" is never mistaken for "no internet needed".
@@ -36,14 +44,17 @@ export default function ModeToggle() {
   const [error, setError] = useState(null)
   const panelId = useId()
   const rootRef = useRef(null)
+  const triggerRef = useRef(null)
 
   const mode = optimistic ?? health?.model_mode
-  const dot = { checking: 'bg-muted/50', ready: 'bg-success', down: 'bg-danger' }[status]
 
   useEffect(() => {
     if (!open) return
     const close = (e) => {
-      if (e.type === 'keydown' ? e.key === 'Escape' : !rootRef.current?.contains(e.target)) setOpen(false)
+      if (e.type === 'keydown' && e.key === 'Escape') {
+        setOpen(false)
+        triggerRef.current?.focus()
+      } else if (e.type !== 'keydown' && !rootRef.current?.contains(e.target)) setOpen(false)
     }
     document.addEventListener('pointerdown', close)
     document.addEventListener('keydown', close)
@@ -72,18 +83,16 @@ export default function ModeToggle() {
   return (
     <div ref={rootRef} className="relative">
       <button
+        ref={triggerRef}
         type="button"
         aria-expanded={open}
         aria-controls={panelId}
         aria-label={`${t('service.panel')}: ${t(`service.${status}`)}${mode ? `, ${t(`mode.${mode}`)}` : ''}`}
         onClick={() => setOpen((v) => !v)}
-        className="flex min-h-12 min-w-12 items-center justify-center gap-2 rounded-control px-2 text-sm text-muted transition-colors hover:bg-primary-soft hover:text-ink"
+        className="flex min-h-12 min-w-12 items-center justify-center gap-2 rounded-control border border-line bg-surface px-3 text-support text-muted transition-colors hover:bg-primary-soft hover:text-heading"
       >
-        <span className="relative flex size-3">
-          {status === 'ready' && <span className="absolute inset-0 rounded-full bg-success/30 motion-safe:animate-ping [animation-iteration-count:2]" />}
-          <span className={`relative size-3 rounded-full ${dot}`} />
-        </span>
-        <span className="hidden lg:inline">{mode ? t(`mode.${mode}`) : t(`service.${status}`)}</span>
+        <StatusIcon status={status} className="size-5 shrink-0" />
+        <span className="hidden font-bold text-heading md:inline">{mode ? t(`mode.${mode}`) : t(`service.${status}`)}</span>
       </button>
 
       {open && (
@@ -94,12 +103,12 @@ export default function ModeToggle() {
           className="absolute right-0 top-full z-30 mt-2 w-[min(20rem,calc(100vw-2rem))] space-y-4 rounded-card border border-line bg-surface p-4 shadow-lift"
         >
           <p role="status" className="flex items-center gap-2 font-semibold">
-            <span className={`size-3 shrink-0 rounded-full ${dot}`} />
+            <StatusIcon status={status} className="size-5 shrink-0" />
             {t(`service.${status}`)}
           </p>
 
           <div className="space-y-2">
-            <p id={`${panelId}-mode`} className="text-sm font-semibold text-muted">
+            <p id={`${panelId}-mode`} className="text-support font-semibold text-muted">
               {t('mode.title')}
             </p>
             <Segmented
@@ -112,16 +121,16 @@ export default function ModeToggle() {
                 { value: 'offline', label: t('mode.offline') },
               ]}
             />
-            {switching && <p className="text-sm text-muted">{t('mode.switching')}</p>}
+            {switching && <p className="text-support text-muted">{t('mode.switching')}</p>}
             {error && (
-              <p role="alert" className="rounded-control bg-warning-soft px-3 py-2 text-sm text-warning">
+              <Banner tone="warning" compact>
                 {t(error)}
-              </p>
+              </Banner>
             )}
-            <p className="text-sm text-muted">{t('mode.help')}</p>
+            <p className="text-support text-muted">{t('mode.help')}</p>
           </div>
 
-          <p className="flex items-center gap-2 border-t border-line pt-3 text-sm">
+          <p className="flex items-center gap-2 border-t border-line pt-3 text-support">
             {netOnline ? <Wifi className="size-4 text-success" aria-hidden="true" /> : <WifiOff className="size-4 text-danger" aria-hidden="true" />}
             {t(netOnline ? 'net.online' : 'net.offline')}
           </p>

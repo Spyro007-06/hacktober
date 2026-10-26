@@ -1,19 +1,17 @@
-import { Camera, ImageOff } from 'lucide-react'
+import { Camera } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
 import Button from './ui/Button'
+import Banner from './ui/Banner'
 
 /** Backend's mismatch note shown as-is, with the two choices. */
 export default function PhotoMismatchAlert({ note, photos, onRetake, onContinue, busy }) {
   const { t } = useLanguage()
   return (
     <div className="space-y-6">
-      <div role="alert" className="flex gap-4 rounded-card border border-warning/25 bg-warning-soft p-5">
-        <ImageOff className="mt-0.5 size-7 shrink-0 text-warning" aria-hidden="true" />
-        <div className="space-y-2">
-          {note && <p className="text-lg font-medium text-ink">{note}</p>}
-          <p className="text-muted">{t('mismatch.explain')}</p>
-        </div>
-      </div>
+      <Banner tone="warning">
+        {note && <p className="text-lg font-semibold text-heading">{note}</p>}
+        <p className="text-muted">{t('mismatch.explain')}</p>
+      </Banner>
 
       <div className="flex flex-col gap-3 sm:flex-row">
         <Button size="lg" icon={Camera} onClick={onRetake} disabled={busy}>

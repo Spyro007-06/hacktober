@@ -1,6 +1,7 @@
 import { useEffect, useId, useState } from 'react'
 import { Building2, ChevronDown, FileSearch, Headset } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
+import Banner from './ui/Banner'
 
 export const ROUTES = ['local_body', 'cm_helpline', 'rti']
 const ICONS = { local_body: Building2, cm_helpline: Headset, rti: FileSearch }
@@ -25,20 +26,20 @@ export default function RouteBadge({ decision, uiLang, override, onOverride, dis
   return (
     <section aria-labelledby="route-name" className="overflow-hidden rounded-card border border-line bg-surface shadow-card">
       <div className="flex gap-4 p-5 sm:p-6">
-        <span className="flex size-14 shrink-0 items-center justify-center rounded-control bg-primary-soft text-primary">
+        <span className="flex size-14 shrink-0 items-center justify-center rounded-control bg-surface-muted text-heading">
           <Icon className="size-7" aria-hidden="true" />
         </span>
         <div className="min-w-0 space-y-2">
-          <p className="text-sm font-semibold text-muted">{override ? t('route.chosenByOperator') : t('route.recommended')}</p>
-          <h2 id="route-name" className="text-2xl font-bold text-primary-deep">
+          <p className="text-support font-semibold text-muted">{override ? t('route.chosenByOperator') : t('route.recommended')}</p>
+          <h2 id="route-name" className="text-section font-bold text-heading">
             {t(`route.${route}`)}
           </h2>
-          <div className="flex flex-wrap gap-2 text-sm">
-            <span className="rounded-control border border-line bg-bg px-2.5 py-0.5 font-semibold">
+          <div className="flex flex-wrap gap-2 text-support">
+            <span className="rounded-control border border-line bg-background px-2.5 py-0.5 font-semibold">
               {t('route.rule')} {decision.rule_id}
             </span>
             {decision.escalation_level > 0 && (
-              <span className="rounded-control bg-accent-soft px-2.5 py-0.5 font-semibold text-accent-ink">
+              <span className="rounded-control border border-primary bg-primary-soft px-2.5 py-0.5 font-bold text-primary-ink">
                 {t('route.escalation', { n: decision.escalation_level })}
               </span>
             )}
@@ -47,12 +48,12 @@ export default function RouteBadge({ decision, uiLang, override, onOverride, dis
       </div>
 
       {/* Where this route sits among the three: the chosen one is filled. */}
-      <ol aria-label={t('route.steps')} className="grid grid-cols-3 gap-px border-y border-line bg-line text-center text-sm">
+      <ol aria-label={t('route.steps')} className="grid grid-cols-3 gap-px border-y border-line bg-line text-center text-support">
         {ROUTES.map((r) => (
           <li
             key={r}
             aria-current={r === route ? 'true' : undefined}
-            className={`px-2 py-2.5 leading-snug ${r === route ? 'bg-primary font-semibold text-white' : 'bg-surface text-muted'}`}
+            className={`px-2 py-2.5 leading-snug ${r === route ? 'bg-heading font-bold text-white' : 'bg-surface text-muted'}`}
           >
             {t(`route.${r}`)}
           </li>
@@ -62,14 +63,14 @@ export default function RouteBadge({ decision, uiLang, override, onOverride, dis
       <div className="space-y-4 p-5 sm:p-6">
         {reason && (
           <div>
-            <p className="text-sm font-semibold text-muted">{t('route.reason')}</p>
+            <p className="text-support font-semibold text-muted">{t('route.reason')}</p>
             <p className="text-lg">{reason}</p>
           </div>
         )}
         {override && override !== decision.route && (
-          <p className="rounded-control bg-warning-soft px-4 py-2.5 text-warning">
+          <Banner tone="warning" compact>
             {t('route.overridden', { route: t(`route.${decision.route}`) })}
-          </p>
+          </Banner>
         )}
 
         <div className="border-t border-line pt-4">
@@ -78,7 +79,7 @@ export default function RouteBadge({ decision, uiLang, override, onOverride, dis
             aria-expanded={showOverride}
             aria-controls={selectId}
             onClick={() => setShowOverride((v) => !v)}
-            className="flex min-h-12 items-center gap-2 rounded-control font-semibold text-primary-deep"
+            className="flex min-h-12 items-center gap-2 rounded-control font-semibold text-heading"
           >
             {t('route.override')}
             <ChevronDown className={`size-5 transition-transform duration-200 ${showOverride ? 'rotate-180' : ''}`} aria-hidden="true" />
@@ -90,7 +91,7 @@ export default function RouteBadge({ decision, uiLang, override, onOverride, dis
               value={override ?? ''}
               disabled={disabled}
               onChange={(e) => onOverride(e.target.value || null)}
-              className="mt-2 block min-h-14 w-full rounded-control border-2 border-line bg-surface px-4 text-ink focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/20 sm:max-w-md"
+              className="mt-2 block min-h-14 w-full rounded-control border-2 border-line-strong bg-surface px-4 text-text hover:border-heading/60 focus:border-heading focus:outline-none focus:ring-4 focus:ring-primary/50 sm:max-w-md"
             >
               <option value="">{t('route.overrideNone', { route: t(`route.${decision.route}`) })}</option>
               {ROUTES.map((r) => (

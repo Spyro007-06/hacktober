@@ -40,7 +40,7 @@ export default function RouteDetailsPage({ focusHeading }) {
 
       <section aria-labelledby="form-title" className="space-y-4">
         <div>
-          <h2 id="form-title" className="text-xl font-bold">
+          <h2 id="form-title" className="text-section font-bold">
             {t('form.title')}
           </h2>
           <p className="mt-1 text-muted">{t('form.intro')}</p>

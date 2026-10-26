@@ -1,5 +1,6 @@
-// Colors come from CSS variables in src/index.css so every component shares one token set.
-const token = (name) => `rgb(var(--${name}) / <alpha-value>)`
+// Colors come from the --color-* CSS variables in src/index.css so every component shares one token set.
+const token = (name) => `rgb(var(--color-${name}) / <alpha-value>)`
+const status = (name) => ({ DEFAULT: token(name), soft: token(`${name}-soft`) })
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -7,31 +8,47 @@ export default {
   theme: {
     extend: {
       colors: {
-        bg: token('bg'),
-        surface: token('surface'),
-        ink: token('ink'),
-        muted: token('muted'),
-        line: token('line'),
-        primary: { DEFAULT: token('primary'), deep: token('primary-deep'), soft: token('primary-soft') },
-        accent: { DEFAULT: token('accent'), soft: token('accent-soft'), ink: token('accent-ink') },
-        danger: { DEFAULT: token('danger'), soft: token('danger-soft') },
-        warning: { DEFAULT: token('warning'), soft: token('warning-soft') },
-        success: { DEFAULT: token('success'), soft: token('success-soft') },
+        background: token('background'),
+        surface: { DEFAULT: token('surface'), muted: token('surface-muted') },
+        heading: token('heading'),
+        text: token('text'),
+        muted: token('text-muted'),
+        line: { DEFAULT: token('border'), strong: token('border-strong') },
+        primary: { DEFAULT: token('primary'), hover: token('primary-hover'), soft: token('primary-soft'), ink: token('primary-ink') },
+        success: status('success'),
+        warning: status('warning'),
+        danger: status('danger'),
+        info: status('info'),
       },
       fontFamily: {
-        sans: ['"Noto Sans"', '"Noto Sans Tamil"', 'system-ui', 'sans-serif'],
+        // Manrope has no Tamil glyphs, so Tamil text falls through to Noto Sans Tamil per character.
+        sans: ['Manrope', '"Noto Sans Tamil"', 'system-ui', '-apple-system', '"Segoe UI"', 'sans-serif'],
+      },
+      // Type scale (root is 18px): page 28-35px, section 24-28px, card 20-22px, body 18px, label 17px,
+      // support 16px, badge 13.5px. The clamps keep phones at the small end without breakpoint jumps.
+      fontSize: {
+        page: ['clamp(1.5556rem, 1.35rem + 1vw, 1.9444rem)', { lineHeight: '1.2' }],
+        section: ['clamp(1.3333rem, 1.2rem + 0.4vw, 1.5556rem)', { lineHeight: '1.3' }],
+        card: ['clamp(1.1111rem, 1.05rem + 0.3vw, 1.2222rem)', { lineHeight: '1.35' }],
+        label: ['0.9444rem', { lineHeight: '1.45' }],
+        support: ['0.8889rem', { lineHeight: '1.5' }],
+        badge: ['0.75rem', { lineHeight: '1.4' }],
       },
       borderRadius: {
         control: '14px',
-        card: '20px',
+        card: '18px',
       },
       boxShadow: {
-        card: '0 1px 2px rgb(24 61 48 / 0.04), 0 4px 16px rgb(24 61 48 / 0.06)',
-        lift: '0 2px 4px rgb(24 61 48 / 0.06), 0 12px 32px rgb(24 61 48 / 0.10)',
+        // Navy-tinted and subtle: borders carry the structure, shadows only lift.
+        card: '0 1px 2px rgb(20 43 59 / 0.04), 0 4px 14px rgb(20 43 59 / 0.05)',
+        lift: '0 2px 4px rgb(20 43 59 / 0.06), 0 12px 28px rgb(20 43 59 / 0.10)',
       },
       maxWidth: {
         content: '44rem',
         wide: '64rem',
+      },
+      transitionDuration: {
+        DEFAULT: '150ms',
       },
     },
   },

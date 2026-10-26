@@ -56,7 +56,7 @@ export default function DraftPreview({ draft, complainant, onSave, saving, error
   return (
     <section aria-labelledby="doc-title" className="space-y-4">
       <div className="flex items-center justify-between gap-3">
-        <h2 id="doc-title" className="text-xl font-bold">
+        <h2 id="doc-title" className="text-section font-bold">
           {t('draft.document')}
         </h2>
         {!editing && (
@@ -66,7 +66,7 @@ export default function DraftPreview({ draft, complainant, onSave, saving, error
         )}
       </div>
 
-      <div className="rounded-card border border-line bg-line/50 p-2 sm:p-4">
+      <div className="rounded-card border border-line bg-surface-muted p-2 sm:p-4">
         <iframe
           title={t('draft.previewTitle')}
           sandbox=""
@@ -78,8 +78,8 @@ export default function DraftPreview({ draft, complainant, onSave, saving, error
       {editing && (
         <form onSubmit={save} className="space-y-5 rounded-card border border-line bg-surface p-5 shadow-card sm:p-6" noValidate>
           <div>
-            <h3 className="text-lg font-bold">{t('draft.editTitle')}</h3>
-            <p className="mt-1 text-sm text-muted">{t('draft.legalNote')}</p>
+            <h3 className="text-card font-bold">{t('draft.editTitle')}</h3>
+            <p className="mt-1 text-support text-muted">{t('draft.legalNote')}</p>
           </div>
           <Textarea label={t('field.summary_ta')} lang="ta" rows={4} value={form.summary_ta} onChange={set('summary_ta')} disabled={saving} />
           <Textarea label={t('field.summary_en')} lang="en" rows={4} value={form.summary_en} onChange={set('summary_en')} disabled={saving} />

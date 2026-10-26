@@ -3,10 +3,10 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { MotionConfig } from 'framer-motion'
 // Fonts are bundled locally (no Google Fonts) so the kiosk works with WiFi off.
-// Only the Latin and Tamil subsets are needed.
-import '@fontsource/noto-sans/latin-400.css'
-import '@fontsource/noto-sans/latin-600.css'
-import '@fontsource/noto-sans/latin-700.css'
+// Only the Latin and Tamil subsets are needed. Manrope covers English; Tamil falls through to Noto Sans Tamil.
+import '@fontsource/manrope/latin-400.css'
+import '@fontsource/manrope/latin-600.css'
+import '@fontsource/manrope/latin-700.css'
 import '@fontsource/noto-sans-tamil/tamil-400.css'
 import '@fontsource/noto-sans-tamil/tamil-600.css'
 import '@fontsource/noto-sans-tamil/tamil-700.css'
