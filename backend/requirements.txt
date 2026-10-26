@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+pydantic
+google-genai
+ollama
+jinja2
+weasyprint
+pillow
+sqlmodel
+python-multipart
+pydub
+shapely
+python-dotenv
