@@ -3,6 +3,7 @@ import { useComplaint } from '../context/ComplaintContext'
 import { useLanguage } from '../context/LanguageContext'
 import Recorder from '../components/Recorder'
 import PhotoUpload from '../components/PhotoUpload'
+import LocationButton from '../components/LocationButton'
 import FlowError from '../components/FlowError'
 import Button from '../components/ui/Button'
 import LoadingState from '../components/ui/LoadingState'
@@ -36,6 +37,8 @@ export default function DescribePage({ focusHeading }) {
       />
 
       <PhotoUpload />
+
+      <LocationButton />
 
       <div className="space-y-4 border-t border-line pt-6">
         <FlowError />

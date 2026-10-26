@@ -43,3 +43,13 @@ Deterministic triggers on the complaint text:
 
 In mock mode `pdfUrl` returns `/mock/sample.pdf` and `tts()` returns HTTP 501, so the
 text-only next-steps fallback is exercised.
+
+## Known limitations (frontend)
+
+- A refresh on the Draft screen returns to Route and details (the draft is not persisted).
+- Complaint text, photos and clips are never stored, so after a refresh the Describe text box is empty.
+- An escalation draft opened from My complaints has no wizard session: it cannot go Back to Route,
+  and Edit mode only covers the five editable fields (complainant details are not known there).
+- In mock mode the mock backend keeps sessions and filed complaints in sessionStorage (`kural.mock`)
+  so recovery can be demoed; real mode stores only `session_id` and step.
+- `GET /api/complaints` items may include `route` (the mock does); the card hides it when absent.

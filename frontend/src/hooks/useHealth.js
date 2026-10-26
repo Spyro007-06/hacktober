@@ -1,7 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { health } from '../api/client'
 
-/** Checks GET /api/health on mount, then every 30 s while the tab is visible. status: checking | ready | down */
+/**
+ * Checks GET /api/health on mount, then every 30 s while the tab is visible.
+ * status: checking | ready | down. setHealth() applies a response from PUT /config/mode.
+ */
 export default function useHealth(intervalMs = 30000) {
   const [state, setState] = useState({ status: 'checking', health: null })
 
@@ -20,5 +23,6 @@ export default function useHealth(intervalMs = 30000) {
     }
   }, [intervalMs])
 
-  return state
+  const setHealth = useCallback((h) => setState({ status: 'ready', health: h }), [])
+  return { ...state, setHealth }
 }
