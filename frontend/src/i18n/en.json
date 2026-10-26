@@ -3,19 +3,15 @@
   "app.tagline": "Speak your complaint. Get the right government document.",
   "app.skip": "Skip to main content",
   "app.home": "Kural home",
-
   "lang.toggle": "Language",
   "lang.ta": "தமிழ்",
   "lang.en": "English",
-
   "nav.label": "Main",
   "nav.new": "New complaint",
   "nav.complaints": "My complaints",
-
   "service.checking": "Checking service…",
   "service.ready": "Service ready",
   "service.down": "Can't reach Kural",
-
   "step.label": "Step {n} of {total}",
   "step.progress": "Complaint progress",
   "step.describe": "Describe",
@@ -23,10 +19,8 @@
   "step.route": "Route & details",
   "step.draft": "Review draft",
   "step.done": "Done",
-
   "describe.title": "Tell us what happened",
   "describe.intro": "Speak or type your complaint. You can add up to 3 photos.",
-
   "rec.start": "Start recording",
   "rec.stop": "Stop recording",
   "rec.secondsLeft": "{n} seconds left",
@@ -37,11 +31,9 @@
   "rec.recording": "Listening…",
   "rec.clip": "Clip {n}",
   "rec.clips": "Recorded clips",
-
   "text.label": "Your complaint",
   "text.placeholder": "For example: The streetlight on Gandhi Street has not worked for 3 months.",
   "text.hint": "Check the text and correct any mistakes.",
-
   "photos.title": "Photos",
   "photos.add": "Add photo",
   "photos.take": "Take photo",
@@ -50,12 +42,10 @@
   "photos.remaining": "{n} more photos allowed",
   "photos.remove": "Remove photo {n}",
   "photos.invalid": "Only image files can be added.",
-
   "location.use": "Use my location",
   "location.got": "Location added",
   "location.denied": "Location isn't available. You can continue without it.",
   "location.locating": "Finding your location…",
-
   "btn.continue": "Continue",
   "btn.back": "Back",
   "btn.retry": "Try again",
@@ -72,19 +62,15 @@
   "btn.markFiled": "Mark as filed",
   "btn.escalate": "Escalate",
   "btn.dismiss": "Dismiss",
-
   "clarify.title": "A few more details",
   "clarify.intro": "Answer these questions so your document is complete.",
   "clarify.answer": "Your answer",
   "clarify.round": "Round {n} of 2",
-
   "mismatch.title": "The photo doesn't seem to match your complaint",
   "mismatch.retake": "Retake photos",
   "mismatch.continue": "Continue anyway",
-
   "notCivic.title": "This isn't a civic complaint",
   "notCivic.message": "Kural can only help with civic problems like roads, streetlights, garbage, water and drains.",
-
   "route.title": "Where this complaint goes",
   "route.rule": "Rule",
   "route.reason": "Why",
@@ -93,7 +79,6 @@
   "route.local_body": "Local body complaint",
   "route.cm_helpline": "CM Helpline grievance",
   "route.rti": "RTI application",
-
   "form.title": "Your details",
   "form.name": "Full name",
   "form.address": "Address",
@@ -102,31 +87,25 @@
   "form.optional": "Optional",
   "form.nameMissing": "Please enter your name.",
   "form.addressMissing": "Please enter your address.",
-
   "draft.title": "Review your document",
   "portal.title": "Fields for the CM Helpline portal",
   "nextSteps.title": "What to do next",
-
   "done.title": "Your complaint is recorded",
   "done.dueOn": "Expected reply by {date}",
   "done.another": "File another complaint",
-
   "complaints.title": "My complaints",
   "complaints.daysLeft": "{n} days left",
   "complaints.empty": "No complaints yet",
-
   "status.filed": "Filed",
   "status.overdue": "Overdue",
   "status.resolved": "Resolved",
   "status.escalated": "Escalated",
-
   "loading.understanding": "Understanding your complaint…",
   "loading.drafting": "Preparing your document…",
   "loading.transcribing": "Transcribing your voice…",
   "loading.checking": "Checking the details…",
   "loading.saving": "Saving your changes…",
   "loading.filing": "Recording your complaint…",
-
   "error.title": "Something went wrong",
   "error.BAD_INPUT": "Please check your complaint text and photos (max 3).",
   "error.NOT_FOUND": "This complaint was not found. Please start again.",
@@ -137,7 +116,18 @@
   "error.MODEL_TIMEOUT": "This is taking too long. Please try again.",
   "error.NETWORK": "Can't reach Kural. Is the server running?",
   "error.UNKNOWN": "Something went wrong. Please try again.",
-
   "mode.online": "Online",
-  "mode.offline": "Offline"
+  "mode.offline": "Offline",
+  "rec.title": "Speak your complaint",
+  "rec.noMic": "No microphone was found. Please type your complaint.",
+  "rec.failed": "Recording failed. Try again, or type your complaint.",
+  "rec.transcribed": "Added to your complaint",
+  "rec.play": "Play clip {n}",
+  "rec.pause": "Pause clip {n}",
+  "complaintLang.label": "Complaint language",
+  "describe.needText": "Record or type your complaint to continue.",
+  "describe.waitTranscribing": "Please wait until your voice is transcribed.",
+  "photos.hint": "Photos help the office see the problem. You can add up to 3.",
+  "photos.alt": "Photo {n}",
+  "mismatch.explain": "You can take new photos, or continue with these if they are correct."
 }
