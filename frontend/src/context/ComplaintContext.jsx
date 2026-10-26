@@ -37,6 +37,10 @@ const initialState = () => ({
   session: null,
   rounds: 0, // follow-up answer rounds submitted
   answers: {},
+  complainant: { name: '', address: '', phone: '' },
+  routeOverride: null, // operator override: local_body | cm_helpline | rti
+  draft: null, // last draft response (POST/PATCH /drafts or escalate)
+  filed: null, // complaint record from POST /complaints
   pending: null, // name of the in-flight wizard request
   error: null,
   retry: null,
@@ -60,16 +64,18 @@ export function ComplaintProvider({ children }) {
     if (state.session && state.step !== 'done') writeStored({ session_id: state.session.session_id, step: state.step })
   }, [state.session, state.step])
 
-  /** Runs one wizard request at a time; failures become { error, retry } for the ErrorBanner. */
+  /** Runs one wizard request at a time; failures become { error, retry } for the ErrorBanner. Resolves true on success. */
   const run = useCallback(
     async (pending, fn, retry) => {
-      if (pendingRef.current) return
+      if (pendingRef.current) return false
       pendingRef.current = pending
       update({ pending, error: null, retry: null })
       try {
         await fn()
+        return true
       } catch (error) {
-        update({ error, retry: NOT_RETRYABLE.has(error.code) ? null : retry })
+        update({ error, errorFrom: pending, retry: NOT_RETRYABLE.has(error.code) ? null : retry })
+        return false
       } finally {
         pendingRef.current = null
         update({ pending: null })
@@ -221,6 +227,66 @@ export function ComplaintProvider({ children }) {
     setState(initialState())
   }, [])
 
+  // ---------- route, draft, file ----------
+
+  const generateDraft = useCallback(
+    () =>
+      run(
+        'draft',
+        async () => {
+          const s = stateRef.current
+          try {
+            const draft = await api.createDraft({
+              sessionId: s.session.session_id,
+              complainant: { name: s.complainant.name.trim(), address: s.complainant.address.trim(), phone: s.complainant.phone.trim() },
+              routeOverride: s.routeOverride,
+            })
+            update({ draft, filed: null, step: 'draft' })
+          } catch (error) {
+            // 409: the backend still needs answers; refresh the session and go back to Clarify.
+            if (error.code === 'SESSION_NOT_READY') {
+              const session = await api.getSession(s.session.session_id).catch(() => null)
+              if (session && session.status !== 'ready') update({ session, step: 'clarify' })
+            }
+            throw error
+          }
+        },
+        () => generateDraft(),
+      ),
+    [run, update],
+  )
+
+  /** PATCH only what changed. Resolves true when saved. */
+  const saveDraft = useCallback(
+    ({ fields, complainant }) =>
+      run(
+        'save',
+        async () => {
+          const draft = await api.updateDraft(stateRef.current.draft.draft_id, { fields, complainant })
+          update((s) => ({ draft, complainant: { ...s.complainant, ...complainant } }))
+        },
+        () => saveDraft({ fields, complainant }),
+      ),
+    [run, update],
+  )
+
+  const markFiled = useCallback(
+    () =>
+      run(
+        'file',
+        async () => {
+          const filed = await api.fileComplaint({
+            draftId: stateRef.current.draft.draft_id,
+            filedOn: new Date().toLocaleDateString('en-CA'), // local YYYY-MM-DD
+          })
+          writeStored(null)
+          update({ filed, step: 'done' })
+        },
+        () => markFiled(),
+      ),
+    [run, update],
+  )
+
   const actions = useMemo(
     () => ({
       update,
@@ -238,8 +304,21 @@ export function ComplaintProvider({ children }) {
       retakePhotos: () => backToDescribe({ clearPhotos: true }),
       startOver,
       dismissError: () => update({ error: null, retry: null }),
+      setComplainant: (patch) => update((s) => ({ complainant: { ...s.complainant, ...patch } })),
+      setRouteOverride: (routeOverride) => update({ routeOverride }),
+      generateDraft,
+      saveDraft,
+      markFiled,
+      backToRoute: () => update({ step: 'route', error: null, retry: null }),
+      setLocation: (location) => update({ location }),
+      /** Open a draft that did not come from this wizard (escalation): fresh state, straight to Draft. */
+      openDraft: (draft) => {
+        writeStored(null)
+        revokeAll(stateRef.current)
+        setState({ ...initialState(), draft, step: 'draft' })
+      },
     }),
-    [update, addClip, transcribeClip, addPhotos, removePhoto, submitDescribe, setAnswer, submitAnswers, confirmPhotoMismatch, backToDescribe, startOver],
+    [update, addClip, transcribeClip, addPhotos, removePhoto, submitDescribe, setAnswer, submitAnswers, confirmPhotoMismatch, backToDescribe, startOver, generateDraft, saveDraft, markFiled],
   )
 
   const value = useMemo(() => ({ ...state, ...actions }), [state, actions])

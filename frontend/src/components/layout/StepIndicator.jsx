@@ -24,7 +24,8 @@ export default function StepIndicator({ current }) {
                   { done: 'bg-primary', current: 'bg-accent', todo: 'bg-line' }[state]
                 }`}
               />
-              <span className="mt-2.5 hidden items-start gap-2 text-sm leading-snug md:flex">
+              {/* Number above label so long Tamil labels get the full column width. */}
+              <span className="mt-2.5 hidden flex-col items-start gap-1.5 text-sm leading-snug md:flex">
                 <span
                   className={`flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
                     {
@@ -36,7 +37,9 @@ export default function StepIndicator({ current }) {
                 >
                   {state === 'done' ? <Check className="size-3.5" strokeWidth={3} aria-hidden="true" /> : i + 1}
                 </span>
-                <span className={state === 'todo' ? 'text-muted' : 'font-semibold text-ink'}>{t(`step.${step}`)}</span>
+                <span className={`max-w-full [overflow-wrap:anywhere] ${state === 'todo' ? 'text-muted' : 'font-semibold text-ink'}`}>
+                  {t(`step.${step}`)}
+                </span>
               </span>
             </li>
           )
