@@ -19,3 +19,5 @@ All routes are under `/api`.
 | POST | `/complaints/{id}/escalate` | Escalate a complaint |
 
 TODO: request/response shapes per endpoint.
+
+> Contract additions and frontend clarifications: see [frontend-requirements.md](frontend-requirements.md).
