@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* KURAL — Humane Civic Intelligence: design tokens (RGB channels for Tailwind alpha support). */
+:root {
+  --bg: 250 248 242;          /* #FAF8F2 warm ivory */
+  --surface: 255 255 255;
+  --ink: 32 41 35;            /* #202923 */
+  --muted: 98 107 100;        /* #626B64 */
+  --line: 227 229 220;        /* #E3E5DC */
+  --primary: 36 92 69;        /* #245C45 forest green */
+  --primary-deep: 24 61 48;   /* #183D30 */
+  --primary-soft: 232 240 232;/* #E8F0E8 */
+  --accent: 221 166 91;       /* #DDA65B — fills and highlights only, never body text */
+  --accent-soft: 250 239 220;
+  --accent-ink: 122 78 18;    /* text on accent-soft */
+  --danger: 165 29 45;        /* #A51D2D */
+  --danger-soft: 252 236 236;
+  --warning: 138 90 0;        /* #8A5A00 */
+  --warning-soft: 253 243 222;
+  --success: 30 110 60;       /* #1E6E3C */
+  --success-soft: 230 243 234;
+
+  color-scheme: light;
+}
+
+@layer base {
+  /* 1rem = 18px base for the citizen-facing UI; percentage keeps the user's browser zoom setting. */
+  html {
+    font-size: 112.5%;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-bg text-ink font-sans antialiased;
+    line-height: 1.6;
+    min-height: 100dvh;
+  }
+
+  /* Tamil glyphs are taller; give them room so they never clip. */
+  :lang(ta) body,
+  [lang='ta'] {
+    line-height: 1.75;
+  }
+
+  h1, h2, h3 {
+    @apply text-ink;
+    line-height: 1.3;
+    text-wrap: balance;
+  }
+
+  :lang(ta) h1,
+  :lang(ta) h2,
+  :lang(ta) h3 {
+    line-height: 1.5;
+  }
+
+  :focus-visible {
+    outline: 3px solid rgb(var(--primary));
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
