@@ -68,11 +68,14 @@ export function transcribe(audio, language) {
 }
 
 /** photos: File[] (0-3). lat/lon only when the user explicitly shared location. */
-export function createSession({ text, language, photos = [], lat, lon }) {
+export function createSession({ text, language, photos = [], lat, lon, spoken = false }) {
   if (USE_MOCKS) return mocked(() => mock.createSession({ text, language, photos, lat, lon }))
   const form = new FormData()
   form.append('text', text)
   form.append('language', language)
+  // Pressing Continue after reading/editing the transcript is the citizen's confirmation.
+  form.append('input_source', spoken ? 'speech' : 'typed')
+  form.append('transcript_confirmed', 'true')
   for (const photo of photos) form.append('photos', photo, photo.name)
   if (Number.isFinite(lat) && Number.isFinite(lon)) {
     form.append('lat', String(lat))
@@ -82,7 +85,7 @@ export function createSession({ text, language, photos = [], lat, lon }) {
 }
 
 export function answerSession(sessionId, { answers = {}, confirmPhotoMismatch = false } = {}) {
-  const body = { answers, confirm_photo_mismatch: confirmPhotoMismatch }
+  const body = { answers: confirmPhotoMismatch ? { ...answers, photo_mismatch: 'confirm' } : answers }
   return USE_MOCKS
     ? mocked(() => mock.answerSession(sessionId, body))
     : request('POST', `/sessions/${enc(sessionId)}/answers`, { json: body })
