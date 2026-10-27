@@ -149,7 +149,7 @@ def test_a_language_without_a_voice_is_501_not_a_wrong_language_voice(client):
 
 @pytest.mark.parametrize("body", [
     {"text": "", "language": "en"}, {"text": "   ", "language": "en"},
-    {"text": "... ---", "language": "en"}, {"text": "x" * 2000, "language": "en"},
+    {"text": "... ---", "language": "en"}, {"text": "x" * (Settings(_env_file=None).tts_max_chars + 1), "language": "en"},  # one over the limit
     {"text": "hi", "language": "fr"}, {"text": "hi"}, {"language": "en"},
     {"text": "hi", "language": "en", "voice": "x"},
 ])
