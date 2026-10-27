@@ -141,11 +141,13 @@ Checked live on 2026-10-27 with fictional complaints only (online sends text to 
 
 - `python -m backend.provider_check` with `MODEL_MODE=online`: `gemma-4-31b-it` and `gemma-4-26b-a4b-it` are
   listed for the configured key (a model lookup only; no complaint data).
-- Generation is **unreliable**: one short English request on `gemma-4-31b-it` returned valid JSON (34.6 s);
-  the other six attempts failed (Tamil text: timeout, then 503; generated image: 500 twice; English again: 503;
-  `gemma-4-26b-a4b-it` Tamil text: 500). Kural maps these to `504`/`503` without leaking details.
-  Treat online mode as unverified for Tamil and photos, and use offline mode (Ollama `gemma4:e2b`) for the demo
-  until it is re-tested. `gemini-2.5-flash` answered `404` for this key (not a Gemma model; not a Kural default).
+- Generation is **unreliable**. Valid attempts so far: one short English request on `gemma-4-31b-it` returned
+  valid JSON (34.6 s); a generated image with English text failed twice (500), English text failed twice later
+  (503 after 80 s, 500 after 1.9 s), and a real Tamil request failed fast (503). Kural maps these to `503`/`504`
+  without leaking details. Three earlier "Tamil" attempts (timeout, 503, and a `gemma-4-26b-a4b-it` 500) are **not**
+  valid evidence: a test script had saved the Tamil as `?` characters. Treat online mode as unverified and use
+  offline mode (Ollama `gemma4:e2b`) for the demo until it is re-tested. `gemini-2.5-flash` answered `404` for this
+  key (not a Gemma model; not a Kural default).
 - Set `MODEL_TIMEOUT_S=120` for online as well (the default 30 s is shorter than the one success).
 
 ### Test the provider connection manually
