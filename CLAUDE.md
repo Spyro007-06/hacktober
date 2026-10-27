@@ -36,9 +36,9 @@ Full requirements: @docs/PRD.md
 - All API routes under /api. Endpoint list: docs/api.md
 
 ## Commands
-- Backend: cd backend && uvicorn app.main:app --reload --port 8000
+- Backend (repo root): uvicorn backend.main:app --reload --port 8000
 - Frontend: cd frontend && npm run dev
-- Tests: cd backend && pytest
+- Tests (repo root): python -m pytest -q
 
 ## Priorities
 P0 must work for the demo; P1 only after P0 is done. See the Scope table in

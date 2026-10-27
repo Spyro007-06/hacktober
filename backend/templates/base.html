@@ -1,1 +1,32 @@
-<!-- TODO: shared bilingual Tamil + English layout, evidence photo page. -->
+<!doctype html>
+<html lang="ta">
+<head>
+<meta charset="utf-8">
+<title>{% block title %}Kural{% endblock %}</title>
+<style>
+  @page { size: A4; margin: 16mm; }
+  body { font-family: "Noto Sans Tamil", "Nirmala UI", "Noto Sans", Arial, sans-serif;
+         font-size: 11pt; line-height: 1.55; color: #111; }
+  h1 { font-size: 17pt; margin: 0 0 4mm; }
+  h2 { font-size: 12.5pt; margin: 6mm 0 2mm; border-bottom: 0.4mm solid #444; padding-bottom: 1mm; }
+  .banner { border: 0.5mm solid #444; padding: 2.5mm 3mm; margin: 0 0 4mm; font-size: 10pt; }
+  .banner.demo { border-color: #a40000; background: #fff1f1; color: #6b0000; font-weight: bold; }
+  .muted { color: #666; }
+  .box { border: 0.3mm solid #999; padding: 2.5mm 3mm; margin: 2mm 0; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { border: 0.3mm solid #999; padding: 1.5mm 2mm; text-align: left; vertical-align: top; }
+  th { width: 34%; background: #f3f3f3; }
+  p { margin: 1.5mm 0; }
+  ul { margin: 1.5mm 0 1.5mm 6mm; padding: 0; }
+  h2 { break-after: avoid; }
+  .box, .banner, tr { break-inside: avoid; }
+  .evidence { break-before: page; }
+  figure { margin: 0 0 4mm; text-align: center; break-inside: avoid; }
+  figure img { max-width: 100%; max-height: 62mm; object-fit: contain; }
+  figcaption { font-size: 9.5pt; color: #444; }
+</style>
+</head>
+<body>
+{% block body %}{% endblock %}
+</body>
+</html>
