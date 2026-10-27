@@ -1,0 +1,22 @@
+{# Shared helpers. All Tamil wording here is machine-drafted and needs native-speaker review. #}
+{% macro v(x) -%}
+{% if x %}{{ x }}{% else %}<span class="muted">Not provided / வழங்கப்படவில்லை</span>{% endif %}
+{%- endmacro %}
+
+{% macro category_label(c) -%}
+{% set names = {
+  "road": "Road / சாலை",
+  "streetlight": "Streetlight / தெருவிளக்கு",
+  "garbage": "Garbage / குப்பை",
+  "water": "Water supply / குடிநீர்",
+  "drainage": "Drainage / வடிகால்",
+  "other_civic": "Other civic issue / பிற குடிமைப் பிரச்சினை"
+} %}
+{{ names.get(c, c) }}
+{%- endmacro %}
+
+{% macro route_label(r) -%}
+{% if r == "cm_helpline" %}CM Helpline / முதலமைச்சர் உதவி மையம்
+{%- elif r == "rti" %}RTI (information request) / RTI (தகவல் கோரிக்கை)
+{%- else %}Local body / உள்ளாட்சி அமைப்பு{% endif %}
+{%- endmacro %}

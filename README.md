@@ -19,17 +19,16 @@ online through the Gemini API or fully offline through Ollama. Built in a
 ## Setup
 
 ```bash
-cp .env.example backend/.env   # then fill in GEMINI_API_KEY etc.
+cp .env.example .env           # repo root; then fill in MODEL_MODE etc.
 ```
 
 ### Backend
 
 ```bash
-cd backend
 python -m venv .venv
 source .venv/bin/activate      # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
+python -m pip install -r requirements.txt
+uvicorn backend.main:app --reload --port 8000   # run from the repo root
 ```
 
 ### Frontend
@@ -43,8 +42,7 @@ npm run dev
 ### Tests
 
 ```bash
-cd backend
-pytest
+python -m pytest -q          # from the repo root
 ```
 
 ## Team ownership
