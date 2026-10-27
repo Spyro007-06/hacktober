@@ -24,3 +24,12 @@ Mock mode is on unless `VITE_USE_MOCKS=false` (set by `.env.real` / `--mode real
 - Type scale: Tailwind sizes `text-page`, `text-section`, `text-card`, `text-label`, `text-support`, `text-badge` (root is 18px).
 - Fonts: Manrope (English) and Noto Sans Tamil (Tamil) bundled via `@fontsource`; no network needed.
 - Shared UI: Button, Field (Input/Textarea), Banner, ErrorBanner, StatusBadge, Segmented, EmptyState, LoadingState.
+
+## Pages
+
+- `/` landing page (`src/pages/Landing.jsx`) with a one-time splash screen (`src/components/Splash.jsx`, once per browser session, skipped under reduced motion).
+- `/new` the complaint wizard: Describe, Clarify, Route and details, Review draft, Done.
+- `/complaints` the tracker with deadlines and escalation.
+
+The citizen's GPS position (asked for when the Describe screen opens) is turned into an address with OpenStreetMap Nominatim
+(`reverseGeocode` in `src/api/client.js`, the only call that leaves the server) and prefills the location answer and the complainant address.

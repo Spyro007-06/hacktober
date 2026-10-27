@@ -1,5 +1,6 @@
 import io
 import re
+import sys
 import threading
 import urllib.request
 
@@ -253,7 +254,8 @@ def test_fetcher_allows_data_uris_and_the_bundled_font(fetcher):
 
 def test_bundled_font_url_recognised_in_encoded_and_raw_forms():
     assert _is_bundled_font(FONT_PATH.as_uri())
-    assert _is_bundled_font("file:///" + str(FONT_PATH).replace("\\", "/"))
+    if sys.platform == "win32":  # the raw drive-letter form (file:///C:/...) only exists on Windows
+        assert _is_bundled_font("file:///" + str(FONT_PATH).replace("\\", "/"))
     assert not _is_bundled_font(FONT_PATH.with_name("OFL.txt").as_uri())
     assert not _is_bundled_font("http://example.com/" + FONT_PATH.name)
 

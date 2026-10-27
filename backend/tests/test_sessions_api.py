@@ -1,3 +1,5 @@
+import sys
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -125,7 +127,11 @@ def test_save_photos_uses_generated_names(tmp_path):
     assert resolve_photo(tmp_path, names[0]).read_bytes() == make_image()
 
 
-@pytest.mark.parametrize("bad", ["../secret.txt", "s_1/../../x", "/etc/passwd", "C:\\Windows\\win.ini"])
+WINDOWS_PATH = pytest.param("C:\\Windows\\win.ini", marks=pytest.mark.skipif(
+    sys.platform != "win32", reason="a backslash is only a path separator on Windows"))
+
+
+@pytest.mark.parametrize("bad", ["../secret.txt", "s_1/../../x", "/etc/passwd", WINDOWS_PATH])
 def test_resolve_photo_blocks_path_traversal(tmp_path, bad):
     with pytest.raises(AppError):
         resolve_photo(tmp_path, bad)
