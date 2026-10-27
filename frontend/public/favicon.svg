@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44">
+  <rect width="44" height="44" rx="13" fill="#17150F"/>
+  <text x="19" y="29.5" text-anchor="middle" font-family="'Noto Sans Tamil', sans-serif" font-weight="700" font-size="18" fill="#fff">கு</text>
+  <path d="M32 16.5a8 8 0 0 1 0 11" stroke="#F7B500" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+  <path d="M36 13a13 13 0 0 1 0 18" stroke="#F7B500" stroke-opacity=".6" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+</svg>

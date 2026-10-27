@@ -60,3 +60,6 @@ kural_live_*/
 kural_flow_*/
 photo_test_*/
 tmp_*.py
+
+# Local design-tool output
+.taste-skill/
