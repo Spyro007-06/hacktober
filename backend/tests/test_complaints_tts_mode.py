@@ -49,7 +49,7 @@ def test_switching_offline_checks_that_ollama_runs_and_has_the_model(settings):
     try:
         r = c.put("/api/config/mode", json={"mode": "offline"})
         assert r.status_code == 200
-        assert r.json() == {"status": "ok", "model_mode": "offline", "model": "gemma4:e2b"}
+        assert r.json() == {"status": "ok", "model_mode": "offline", "model": "gemma4:e2b", "tts": []}
         assert c.get("/api/health").json()["model_mode"] == "offline"
         assert c.app.state.settings.model_mode == "offline"
     finally:
@@ -139,6 +139,14 @@ def test_audio_is_returned_as_wav_with_privacy_headers(client):
     assert r.status_code == 200 and r.headers["content-type"] == "audio/wav"
     assert r.headers["cache-control"] == "no-store" and r.content == fake.audio
     assert fake.calls == [("தெருவிளக்கு எரியவில்லை", "ta")]          # whitespace tidied, text otherwise untouched
+
+
+def test_health_lists_the_languages_that_have_a_voice(client):
+    assert client.get("/api/health").json()["tts"] == []
+    client.app.state.tts = FakeTts(languages=("ta",))
+    assert client.get("/api/health").json()["tts"] == ["ta"]
+    client.app.state.tts = FakeTts()
+    assert client.get("/api/health").json()["tts"] == ["ta", "en"]
 
 
 def test_a_language_without_a_voice_is_501_not_a_wrong_language_voice(client):

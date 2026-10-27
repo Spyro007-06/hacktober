@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Square, Volume2 } from 'lucide-react'
-import { tts } from '../api/client'
+import { health, tts } from '../api/client'
 import { useLanguage } from '../context/LanguageContext'
 import Button from './ui/Button'
 import Banner from './ui/Banner'
@@ -9,15 +9,28 @@ const sentences = (text) => (text ?? '').split(/(?<=[.!?])\s+/).map((s) => s.tri
 
 /**
  * Backend next steps in both languages (UI language first), each with a Play button via POST /api/tts.
+ * Play is shown only for languages that GET /api/health lists under `tts` (all of them when the server does not say).
  * HTTP 501 hides Play for good; other failures keep the written steps and say audio failed.
  */
 export default function NextSteps({ nextSteps, uiLang }) {
   const { t } = useLanguage()
   const [ttsAvailable, setTtsAvailable] = useState(true)
+  const [voices, setVoices] = useState(null) // languages with a voice, or null while unknown
   const [playing, setPlaying] = useState({ lang: null, status: 'idle' }) // idle | loading | playing
   const [failed, setFailed] = useState(false)
   const cache = useRef(new Map()) // `${lang}:${text}` -> object URL
   const audio = useRef(null)
+
+  useEffect(() => {
+    let alive = true
+    health().then(
+      (h) => alive && Array.isArray(h?.tts) && setVoices(h.tts),
+      () => {}, // unknown: keep Play and let the 501 handling decide
+    )
+    return () => {
+      alive = false
+    }
+  }, [])
 
   useEffect(
     () => () => {
@@ -84,7 +97,7 @@ export default function NextSteps({ nextSteps, uiLang }) {
                 ) : (
                   <p>{nextSteps[lang]}</p>
                 )}
-                {ttsAvailable && (
+                {ttsAvailable && (voices === null || voices.includes(lang)) && (
                   <Button
                     variant="secondary"
                     className="mt-auto self-start"
