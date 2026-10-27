@@ -75,7 +75,7 @@ def list_complaints(db: Database, today: date) -> list[ComplaintListItem]:
     for c in db.list_complaints():
         if c.draft_id not in verified:
             draft = db.get_draft(c.draft_id)
-            verified[c.draft_id] = bool(draft and draft.department_verified)
+            verified[c.draft_id] = bool(draft and draft.response_days_verified)
         items.append(ComplaintListItem(
             id=c.id, draft_id=c.draft_id, title=title_for(c), route=c.route, category=c.category,
             location_text=c.location_text, ward=c.ward, filed_on=c.filed_on, due_on=c.due_on,

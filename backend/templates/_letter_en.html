@@ -1,0 +1,46 @@
+{% from "_macros.html" import subject_en, dmy %}
+<section class="letter" lang="en">
+  <table class="meta"><tr>
+    <td class="from">
+      <p class="label">From</p>
+      <p><strong>{{ complainant.name }}</strong><br>{{ complainant.address }}{% if complainant.phone %}<br>Phone: {{ complainant.phone }}{% endif %}</p>
+    </td>
+    <td class="date">
+      <p>Date: {{ dmy(created_on) }}</p>
+      <p class="muted">Ref: {{ draft_id }}</p>
+    </td>
+  </tr></table>
+
+  <div class="to">
+    <p class="label">To</p>
+    <p><strong>{{ department.name }}</strong><br>{{ department.address }}</p>
+  </div>
+
+  <p class="subject"><strong>Subject:</strong> {{ subject_en(kind, category, location_text) | trim }}</p>
+
+  <p>Respected Sir / Madam,</p>
+  {% if summary_en %}<p class="body">{{ summary_en }}</p>{% endif %}
+
+  {% if kind == "rti" %}
+  <p>Under the Right to Information Act, 2005, I request you to provide me the following information:</p>
+  {% if requested_info %}
+  <ol>
+    {% for item in requested_info %}
+    <li>{{ item.split(" / ")[0] }}</li>
+    {% endfor %}
+  </ol>
+  {% else %}
+  <p class="muted">No specific information has been entered yet. Add your questions by editing this document before you submit it.</p>
+  {% endif %}
+  <p>I request you to send the information to me in writing at the address given above.</p>
+  {% else %}
+  <p>I kindly request you to look into this matter and take the necessary action at the earliest, and to inform me of the action taken.</p>
+  {% endif %}
+  {% if evidence_photos %}<p>Photographs showing the problem are enclosed.</p>{% endif %}
+
+  <p>Thanking you,</p>
+  <p>Yours faithfully,</p>
+  <div class="sign-line"></div>
+  <p><strong>{{ complainant.name }}</strong></p>
+  {% if evidence_photos %}<p class="muted">Enclosure: Photographs ({{ evidence_photos | length }})</p>{% endif %}
+</section>

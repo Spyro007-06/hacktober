@@ -26,6 +26,8 @@ from backend.errors import AppError, model_timeout, model_unavailable
 log = logging.getLogger("kural.llm")
 
 GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta"
+RETRYABLE_STATUS = (500, 502, 503)  # transient upstream errors; 4xx and 504 are never retried
+ATTEMPT_TIMEOUT_S = 15  # per attempt when a provider retries; live Gemma 4 calls stalled past 30 s about 1 in 7
 GEMMA4_PREFIX = "gemma-4"  # these model ids get the minimal documented request body
 # Gemma 4 "thinks" by default: ~500 hidden tokens made one extraction take 14-28 s against the
 # 30 s timeout (measured on gemma-4-26b-a4b-it). Extraction is a fill-in-the-fields task, so the
@@ -54,6 +56,7 @@ class ProviderStatus:
 
 class LLMProvider(ABC):
     name: str
+    retries = 0  # extra attempts after a transient 5xx; set per provider
 
     def __init__(self, model: str, timeout_s: float,
                  transport: Optional[httpx.AsyncBaseTransport] = None, trust_env: bool = True):
@@ -72,20 +75,31 @@ class LLMProvider(ABC):
         complaint data."""
 
     async def _request(self, method: str, url: str, **kwargs: Any) -> httpx.Response:
-        try:
-            # httpx timeouts are per phase; asyncio.timeout bounds the whole call.
-            async with asyncio.timeout(self.timeout_s):
-                async with httpx.AsyncClient(
-                    timeout=httpx.Timeout(self.timeout_s), transport=self._transport,
-                    trust_env=self._trust_env,
-                ) as client:
-                    resp = await client.request(method, url, **kwargs)
-        except (httpx.TimeoutException, TimeoutError):
-            log.warning("provider=%s timeout", self.name)
-            raise model_timeout()
-        except httpx.HTTPError as exc:
-            log.warning("provider=%s unreachable error=%s", self.name, type(exc).__name__)
-            raise model_unavailable(f"Could not reach the {self.name} model service.")
+        for attempt in range(self.retries + 1):
+            # With retries on, a stalled call is abandoned early and tried again (normal calls take 4-8 s).
+            limit = min(self.timeout_s, ATTEMPT_TIMEOUT_S) if self.retries else self.timeout_s
+            try:
+                # httpx timeouts are per phase; asyncio.timeout bounds the whole call.
+                async with asyncio.timeout(limit):
+                    async with httpx.AsyncClient(
+                        timeout=httpx.Timeout(limit), transport=self._transport,
+                        trust_env=self._trust_env,
+                    ) as client:
+                        resp = await client.request(method, url, **kwargs)
+            except (httpx.TimeoutException, TimeoutError):
+                log.warning("provider=%s timeout attempt=%d", self.name, attempt + 1)
+                if attempt < self.retries:
+                    continue
+                raise model_timeout()
+            except httpx.HTTPError as exc:
+                log.warning("provider=%s unreachable error=%s", self.name, type(exc).__name__)
+                raise model_unavailable(f"Could not reach the {self.name} model service.")
+            if resp.status_code in RETRYABLE_STATUS and attempt < self.retries:
+                # Transient server error (these fail in about a second): try again before bothering the citizen.
+                log.warning("provider=%s http_status=%d retry=%d", self.name, resp.status_code, attempt + 1)
+                await asyncio.sleep(0.5 * (attempt + 1))
+                continue
+            break
         self._raise_for_status(resp)
         return resp
 
@@ -127,6 +141,9 @@ class GeminiProvider(LLMProvider):
     """
 
     name = "Gemini"
+    # The Gemini API answered HTTP 500 "Internal error" to about 45 % of Gemma 4 calls in a live test
+    # (each failing in about a second), so two quick retries turn most of those into successes.
+    retries = 2
 
     def __init__(self, api_key: str, model: str, timeout_s: float,
                  transport: Optional[httpx.AsyncBaseTransport] = None):

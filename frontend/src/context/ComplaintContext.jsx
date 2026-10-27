@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import * as api from '../api/client'
 import { ApiError } from '../api/errors'
+import { useLanguage } from './LanguageContext'
 
 // Only the session id and step are persisted (sessionStorage), never text, photos or personal details.
 const STORAGE_KEY = 'kural.session'
@@ -57,11 +58,18 @@ const ComplaintContext = createContext(null)
 
 export function ComplaintProvider({ children }) {
   const [state, setState] = useState(() => ({ ...initialState(), recovering: Boolean(readStored()?.session_id) }))
+  const { uiLang } = useLanguage()
+  const langChosen = useRef(false) // true once the citizen picks the complaint language themselves
   const stateRef = useRef(state)
   stateRef.current = state
   const pendingRef = useRef(null) // synchronous guard against double submits
 
   const update = useCallback((patch) => setState((s) => ({ ...s, ...(typeof patch === 'function' ? patch(s) : patch) })), [])
+
+  // Until they choose, the complaint is assumed to be in the language they are reading the app in.
+  useEffect(() => {
+    if (!langChosen.current) update({ complaintLang: uiLang })
+  }, [uiLang, update])
 
   useEffect(() => {
     if (state.session && state.step !== 'done') writeStored({ session_id: state.session.session_id, step: state.step })
@@ -304,7 +312,10 @@ export function ComplaintProvider({ children }) {
     () => ({
       update,
       setText: (text) => update({ text }),
-      setComplaintLang: (complaintLang) => update({ complaintLang }),
+      setComplaintLang: (complaintLang) => {
+        langChosen.current = true
+        update({ complaintLang })
+      },
       addClip,
       retryClip: transcribeClip,
       addPhotos,

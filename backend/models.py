@@ -154,6 +154,8 @@ class Draft(BaseModel):
     route_override: Optional[Route] = None
     # added: trust flags so documents never present placeholders as official.
     department_verified: bool = False
+    # added: True when the department's response time is official (e.g. the 30 days the RTI Act gives).
+    response_days_verified: bool = False
     portal_fields_verified: bool = False
     # added: citizen edits to EDITABLE_FIELDS, applied on top of the extraction.
     edited_fields: dict[str, Union[str, list[str]]] = Field(default_factory=dict)
@@ -215,7 +217,8 @@ class DraftResponse(BaseModel):
     route: Route  # effective route (override if set, else the rule's)
     route_override: Optional[Route] = None
     department: Department
-    department_verified: bool  # False = demo placeholder, not official data
+    department_verified: bool  # False = no verified office for the complainant's city (generic addressee)
+    response_days_verified: bool = False  # True only for an official time limit (e.g. the RTI Act's 30 days)
     html: str
     portal_fields: dict[str, str]
     portal_fields_verified: bool  # False = labels not confirmed against the real form

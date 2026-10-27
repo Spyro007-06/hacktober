@@ -1,58 +1,36 @@
 {% extends "base.html" %}
-{% from "_macros.html" import v, category_label %}
-{% block title %}Information request (RTI) draft / தகவல் கோரிக்கை (RTI) வரைவு {{ draft_id }}{% endblock %}
+{% from "_macros.html" import v, dmy %}
+{% block title %}Information request (RTI) / தகவல் கோரிக்கை (RTI) {{ draft_id }}{% endblock %}
 {% block body %}
-<h1>Information request (RTI), draft / தகவல் கோரிக்கை (RTI), வரைவு</h1>
-
-<div class="banner">
-  <p lang="en">Draft prepared with Kural. Review it before submitting. This is not an official government form. It contains no fee or time-limit information.</p>
-  <p lang="ta">குரல் (Kural) மூலம் தயாரிக்கப்பட்ட வரைவு. சமர்ப்பிக்கும் முன் சரிபார்க்கவும். இது அதிகாரப்பூர்வ அரசுப் படிவம் அல்ல. கட்டணம் அல்லது கால வரம்பு குறித்த தகவல் இதில் இல்லை.</p>
-</div>
 {% if not department_verified %}
 <div class="banner demo">
   <p lang="en">{{ demo_notice.en }}</p>
   <p lang="ta">{{ demo_notice.ta }}</p>
 </div>
 {% endif %}
+{% set kind = "rti" %}
+{% include "_letter_en.html" %}
+{% include "_letter_ta.html" %}
+
+<section class="annexure">
+<h1>Submission details / சமர்ப்பிப்பு விவரங்கள்</h1>
+<div class="banner">
+  <p lang="en">Draft prepared with Kural. Review it before submitting. This page is not part of the application, and this is not an official government form. It contains no fee information.</p>
+  <p lang="ta">குரல் (Kural) மூலம் தயாரிக்கப்பட்ட வரைவு. சமர்ப்பிக்கும் முன் சரிபார்க்கவும். இந்தப் பக்கம் விண்ணப்பத்தின் பகுதி அல்ல; இது அதிகாரப்பூர்வ அரசுப் படிவமும் அல்ல. கட்டணம் குறித்த தகவல் இதில் இல்லை.</p>
+</div>
 
 <table>
   <tr><th>Reference / குறிப்பு எண்</th><td>{{ draft_id }}</td></tr>
-  <tr><th>Date prepared / தயாரித்த தேதி</th><td>{{ created_on }}</td></tr>
+  <tr><th>Date prepared / தயாரித்த தேதி</th><td>{{ dmy(created_on) }}</td></tr>
 </table>
 
-<h2>Department / துறை</h2>
-<div class="box">
-  <p>{{ v(department.name) }}</p>
-  <p>{{ v(department.address) }}</p>
-</div>
-
-<h2>Applicant / விண்ணப்பதாரர்</h2>
-<table>
-  <tr><th>Name / பெயர்</th><td>{{ v(complainant.name) }}</td></tr>
-  <tr><th>Address / முகவரி</th><td>{{ v(complainant.address) }}</td></tr>
-  <tr><th>Phone / தொலைபேசி</th><td>{{ v(complainant.phone) }}</td></tr>
-</table>
-
-<h2>Background / பின்னணி</h2>
-<table>
-  <tr><th>Category / வகை</th><td>{{ category_label(category) }}</td></tr>
-  <tr><th>Location / இடம்</th><td>{{ v(location_text) }}</td></tr>
-  <tr><th>Duration / கால அளவு</th><td>{{ v(duration) }}</td></tr>
-</table>
-<div class="box">
-  <p lang="en">{{ summary_en }}</p>
-  <p lang="ta">{{ summary_ta }}</p>
-</div>
-
-<h2>Information requested / கோரப்படும் தகவல்</h2>
-{% if requested_info %}
+{% if photo_findings %}
+<h2>Photo observations (automated, unverified) / புகைப்படக் குறிப்புகள் (தானியங்கி, சரிபார்க்கப்படாதவை)</h2>
 <ul>
-{% for item in requested_info %}
-  <li>{{ item }}</li>
+{% for f in photo_findings %}
+  <li>{{ f }}</li>
 {% endfor %}
 </ul>
-{% else %}
-<p class="muted">Not specified / குறிப்பிடப்படவில்லை</p>
 {% endif %}
 
 <h2>Why this route / இந்த வழி ஏன்</h2>
@@ -79,5 +57,6 @@
 {% endfor %}
 </table>
 {% endif %}
+</section>
 {% include "_evidence.html" %}
 {% endblock %}

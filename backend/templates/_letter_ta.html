@@ -1,0 +1,46 @@
+{% from "_macros.html" import subject_ta, dmy %}
+<section class="letter" lang="ta">
+  <table class="meta"><tr>
+    <td class="from">
+      <p class="label">அனுப்புநர்</p>
+      <p><strong>{{ complainant.name }}</strong><br>{{ complainant.address }}{% if complainant.phone %}<br>தொலைபேசி: {{ complainant.phone }}{% endif %}</p>
+    </td>
+    <td class="date">
+      <p>நாள்: {{ dmy(created_on) }}</p>
+      <p class="muted">குறிப்பு எண்: {{ draft_id }}</p>
+    </td>
+  </tr></table>
+
+  <div class="to">
+    <p class="label">பெறுநர்</p>
+    <p><strong>{{ department.name }}</strong><br>{{ department.address }}</p>
+  </div>
+
+  <p>ஐயா / அம்மையீர்,</p>
+  <p class="subject"><strong>பொருள்:</strong> {{ subject_ta(kind, category, location_text) | trim }}</p>
+  <p>வணக்கம்.</p>
+  {% if summary_ta %}<p class="body">{{ summary_ta }}</p>{% endif %}
+
+  {% if kind == "rti" %}
+  <p>தகவல் அறியும் உரிமைச் சட்டம், 2005-இன் கீழ், பின்வரும் தகவல்களை எனக்கு வழங்குமாறு கேட்டுக்கொள்கிறேன்:</p>
+  {% if requested_info %}
+  <ol>
+    {% for item in requested_info %}
+    <li>{{ item.split(" / ")[-1] }}</li>
+    {% endfor %}
+  </ol>
+  {% else %}
+  <p class="muted">கோரப்படும் தகவல் இன்னும் உள்ளிடப்படவில்லை. சமர்ப்பிக்கும் முன் இந்த ஆவணத்தைத் திருத்தி உங்கள் கேள்விகளைச் சேர்க்கவும்.</p>
+  {% endif %}
+  <p>மேற்கண்ட தகவலை மேலே குறிப்பிட்டுள்ள முகவரிக்கு எழுத்துப்பூர்வமாக அனுப்புமாறு கேட்டுக்கொள்கிறேன்.</p>
+  {% else %}
+  <p>எனவே, இப்பிரச்சினையைக் கவனத்தில் கொண்டு, உரிய நடவடிக்கையை விரைந்து எடுத்து, எடுக்கப்பட்ட நடவடிக்கை குறித்து எனக்குத் தெரிவிக்குமாறு பணிவுடன் கேட்டுக்கொள்கிறேன்.</p>
+  {% endif %}
+  {% if evidence_photos %}<p>பிரச்சினையைக் காட்டும் புகைப்படங்கள் இணைக்கப்பட்டுள்ளன.</p>{% endif %}
+
+  <p>நன்றி.</p>
+  <p>இப்படிக்கு,</p>
+  <div class="sign-line"></div>
+  <p><strong>{{ complainant.name }}</strong></p>
+  {% if evidence_photos %}<p class="muted">இணைப்பு: புகைப்படங்கள் ({{ evidence_photos | length }})</p>{% endif %}
+</section>

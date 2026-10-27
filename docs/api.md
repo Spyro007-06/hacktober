@@ -117,7 +117,8 @@ The same fields as a session, plus the stored session (`transcript`, `language`,
   "route": "local_body",
   "route_override": null,
   "department": { "id": "...", "name": "...", "address": "...", "submit_via": "...", "response_days": 15 },
-  "department_verified": false,
+  "department_verified": true,
+  "response_days_verified": false,
   "html": "<html>...</html>",
   "portal_fields": { "Complaint": "..." },
   "portal_fields_verified": false,
@@ -127,7 +128,7 @@ The same fields as a session, plus the stored session (`transcript`, `language`,
 ```
 
 `decision` is always the rule's choice; `route` is the effective route (the operator's override if set).
-`*_verified: false` means the data are demo placeholders and the document says so.
+`department_verified: false` means the office could not be matched to the complainant's city (a generic addressee is used) and the document asks the citizen to check it. `portal_fields_verified: false` means the portal field labels are unconfirmed.
 
 ### `PATCH /drafts/{id}`
 

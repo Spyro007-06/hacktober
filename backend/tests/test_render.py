@@ -30,7 +30,7 @@ def render(route="local_body", **over):
 
 
 @pytest.mark.parametrize("route,marker", [
-    ("local_body", "புகார் வரைவு"), ("cm_helpline", "புகார் வரைவு"), ("rti", "தகவல் கோரிக்கை"),
+    ("local_body", "புகார் கடிதம்"), ("cm_helpline", "புகார் கடிதம்"), ("rti", "தகவல் கோரிக்கை"),
 ])
 def test_every_route_renders_a_complete_bilingual_document(route, marker):
     html = render(route)
@@ -70,9 +70,22 @@ def test_demo_banner_shown_only_for_unverified_departments():
     assert "டெமோ தரவு" in render("rti", department_verified=False)
 
 
-def test_missing_optional_values_say_not_provided_in_both_languages():
-    html = render(location_text=None, duration="", complainant={"name": "A", "address": "B", "phone": None})
-    assert html.count("Not provided / வழங்கப்படவில்லை") == 3
+def test_missing_optional_values_leave_no_blank_or_placeholder_in_the_letter():
+    html = render(location_text=None, duration="", complainant={"name": "A", "address": "B", "phone": None},
+                  department={"name": "The Commissioner", "address": "Main Road"}, department_verified=True)
+    assert "Phone:" not in html and "தொலைபேசி:" not in html  # no empty phone line
+    assert "at my locality" in html and "எங்கள் பகுதி" in html  # the subject still reads correctly
+    body = html.split("<body>")[1]  # the stylesheet legitimately contains brackets
+    assert "None" not in body and "[" not in body
+
+
+def test_letter_has_the_standard_petition_parts_in_both_languages():
+    html = render()
+    for part in ("From", "To", "Subject:", "Respected Sir / Madam,", "Thanking you,", "Yours faithfully,",
+                 "அனுப்புநர்", "பெறுநர்", "பொருள்:", "ஐயா / அம்மையீர்,", "இப்படிக்கு,"):
+        assert part in html
+    assert "Request to repair the non-functioning streetlight at Gandhi Street" in html
+    assert "26-10-2026" in html  # dd-mm-yyyy
 
 
 def test_portal_table_and_unverified_label_note():
@@ -84,9 +97,11 @@ def test_portal_table_and_unverified_label_note():
 
 
 def test_rti_lists_requested_information():
-    html = render("rti", requested_info=["Repair budget", "Contractor name"])
-    assert "Information requested" in html and "Repair budget" in html and "Contractor name" in html
-    assert "Not specified" in render("rti", requested_info=[])
+    html = render("rti", requested_info=["Repair budget? / பழுதுபார்ப்பு நிதி?", "Contractor name"])
+    assert "following information" in html and "தகவல் அறியும் உரிமைச் சட்டம், 2005" in html
+    assert "Repair budget?" in html and "பழுதுபார்ப்பு நிதி?" in html
+    assert html.count("Contractor name") == 2  # a question without a Tamil half appears in both letters
+    assert "No specific information has been entered" in render("rti", requested_info=[])
 
 
 def test_photo_observations_labelled_as_automated_and_unverified():
@@ -95,13 +110,25 @@ def test_photo_observations_labelled_as_automated_and_unverified():
     assert "Photo observations" not in render(photo_findings=[])
 
 
-def test_templates_contain_no_statute_citations_or_deadlines():
-    for route in ("local_body", "rti"):
+def test_templates_contain_no_section_numbers_fees_or_deadlines():
+    for route in ("local_body", "cm_helpline", "rti"):
         html = render(route, requested_info=["x"])
-        for forbidden in ("Section ", "Act, 2005", "30 days", "within 30"):
+        for forbidden in ("Section ", "30 days", "within 30", "Rs.", "fee of", "fee is"):
             assert forbidden not in html
+
+
+def test_only_the_rti_letter_names_the_rti_act():
+    # An RTI application must say it is made under the Act; no other letter cites any law.
+    assert "Right to Information Act, 2005" in render("rti")
+    for route in ("local_body", "cm_helpline"):
+        assert "Act" not in render(route)
 
 
 def test_missing_template_directory_fails_fast(tmp_path):
     with pytest.raises(Exception):
         check_templates(make_env(tmp_path))
+
+
+def test_rti_subject_names_the_works_not_a_defect():
+    html = render("rti", category="road", location_text="Anna Nagar ward")
+    assert "regarding road repair works at Anna Nagar ward" in html and "damaged road" not in html

@@ -17,7 +17,7 @@ export default function DraftPage({ focusHeading }) {
   const { draft, session, complainant, saveDraft, markFiled, backToRoute, pending } = useComplaint()
   const fromWizard = Boolean(session) // false for an escalation draft opened from My complaints
   const dept = draft.department
-  const route = draft.decision?.route
+  const route = draft.route ?? draft.decision?.route // the effective route (the operator's override if set)
   const filing = pending === 'file'
   const [pdf, setPdf] = useState({ busy: false, error: null })
   const hasPortalFields = Object.keys(draft.portal_fields ?? {}).length > 0
@@ -55,7 +55,7 @@ export default function DraftPage({ focusHeading }) {
                 <span className="font-semibold">{t('draft.submitVia')}:</span> {dept.submit_via}
               </p>
             )}
-            {dept.response_days && <p className="text-muted">{t('draft.replyIn', { n: dept.response_days })}</p>}
+            {dept.response_days && draft.response_days_verified !== false && <p className="text-muted">{t('draft.replyIn', { n: dept.response_days })}</p>}
           </div>
         </section>
       )}

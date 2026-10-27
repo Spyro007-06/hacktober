@@ -80,16 +80,19 @@ class PortalFieldsConfig(BaseModel):
         return cfg
 
 
-def _next_steps(route: Route, dept: Department, verified: bool, rules: RulesConfig) -> dict[str, str]:
+def _next_steps(route: Route, dept: Department, verified: bool, response_verified: bool,
+                rules: RulesConfig) -> dict[str, str]:
     n = rules.next_steps
     out: dict[str, str] = {}
     for lang in ("en", "ta"):
         parts = [getattr(n.routes[route], lang),
                  getattr(n.submit_via, lang).format(submit_via=dept.submit_via)]
-        if verified:
+        if response_verified:
             parts.append(getattr(n.response_verified, lang).format(response_days=dept.response_days))
-        else:  # no response-time commitment from unverified data
-            parts += [getattr(n.response_unverified, lang), getattr(n.demo_notice, lang)]
+        else:  # no response-time commitment unless it is an official time limit
+            parts.append(getattr(n.response_unverified, lang))
+        if not verified:
+            parts.append(getattr(n.demo_notice, lang))
         out[lang] = " ".join(parts)
     return out
 
@@ -124,7 +127,8 @@ def _context(draft: Draft, session: Session, rules: RulesConfig, portal: PortalF
     route = draft.effective_route
     vals = _values(session, draft.edited_fields)
     portal_fields = _portal_fields(route, vals, draft.complainant, draft.department, portal)
-    next_steps = _next_steps(route, draft.department, draft.department_verified, rules)
+    next_steps = _next_steps(route, draft.department, draft.department_verified,
+                             draft.response_days_verified, rules)
     context = {
         "route": route, "draft_id": draft.id, "created_on": draft.created_at.date().isoformat(),
         "decision": {"reason_en": draft.decision.reason_en, "reason_ta": draft.decision.reason_ta},
@@ -197,13 +201,17 @@ def create_draft(db: Database, lookup: DepartmentLookup, rules: RulesConfig,
 
     rule_route = session.decision.route
     route = body.route_override or rule_route
-    record = lookup.require(route, session.extraction.category, session.ward)  # 422 if none
+    # No ward is known (GPS ward detection is not built), so address the office of the city named in the
+    # complainant's address or the location, when a verified record exists for it.
+    area = session.ward or lookup.area_in_text(body.complainant.address, session.extraction.location_text)
+    record = lookup.require(route, session.extraction.category, area)  # 422 if none
     draft = Draft(
         id=new_id("d"), session_id=session.id, decision=session.decision,
         department=record.to_department(), complainant=body.complainant,
         html="", portal_fields={}, next_steps={}, created_at=now or datetime.now(),
         route_override=route if route != rule_route else None,
-        department_verified=record.verified, portal_fields_verified=portal.verified,
+        department_verified=record.verified, response_days_verified=record.response_days_verified,
+        portal_fields_verified=portal.verified,
     )
     draft = assemble(draft, session, rules, portal, env)
     db.save_draft(draft)
@@ -281,7 +289,8 @@ def to_response(d: Draft) -> DraftResponse:
     return DraftResponse(
         draft_id=d.id, decision=d.decision, route=d.effective_route,
         route_override=d.route_override, department=d.department,
-        department_verified=d.department_verified, html=d.html,
+        department_verified=d.department_verified,
+        response_days_verified=d.response_days_verified, html=d.html,
         portal_fields=d.portal_fields, portal_fields_verified=d.portal_fields_verified,
         next_steps=d.next_steps, editable_fields=d.editable_fields,
     )

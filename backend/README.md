@@ -228,9 +228,13 @@ Several drafts per session are allowed. The response adds trust flags to the PRD
 
 - The route is the session's deterministic rule decision (`decision`, never replaced).
   A `route_override` is stored beside it, and only when it differs from the rule's route.
-- The department comes from `departments.json`. While a record is unverified the document
-  carries a visible DEMO banner and the next steps state **no** response time. A response
-  time is quoted only for a verified department, from its configured `response_days`.
+- The department comes from `departments.json`, matched by route, category and city (the city is read from the
+  complainant's address or the location text when no ward is known). The document is a formal bilingual
+  letter (From, To, Subject, body, request, signature) followed by a "Submission details" page. Gemma writes only
+  the body (`summary_en` / `summary_ta`, and for RTI the numbered questions in `requested_info`); the subject,
+  salutation, request and closing are fixed template text. A record with `verified: false` adds a note asking the
+  citizen to check the office. A response time is quoted only when `response_days_verified` is true (the 30 days the
+  RTI Act gives); otherwise the next steps say the response time has not been verified.
 - `portal_fields.json` holds the form labels per route. Today it is an unverified placeholder
   with only the two labels printed in the PRD example (`cm_helpline`); the PRD defines none
   for `local_body` or `rti`. Replace them with the recorded real labels and set `verified`.
@@ -336,8 +340,9 @@ in `.env` has no effect. Tamil font rendering (Noto Sans Tamil) is not yet verif
 
 ## Data caveat
 
-`backend/data/departments.json` contains **demo placeholders only** (`verified: false`,
-names prefixed `[DEMO]`). None of its names, addresses, submission channels or
-`response_days` values are official. The server logs a warning at startup while any
-unverified record is loaded. `rules.json` Tamil text (reasons, follow-up question,
+`backend/data/departments.json` has offices checked against official sites in October 2026: the Greater Chennai
+Corporation, the Coimbatore City Municipal Corporation and the Tamil Nadu CM Helpline (Mudhalvarin Mugavari). Their
+`response_days` are estimates (the CM Helpline publishes only a per-department service level) except the 30 days
+for RTI. Other cities get the generic entries (`verified: false`), which the document flags; add a city by adding
+records with its `areas`. The server logs a warning at startup while any unverified record is loaded. `rules.json` Tamil text (reasons, follow-up question,
 not-civic notice) needs native-speaker review.

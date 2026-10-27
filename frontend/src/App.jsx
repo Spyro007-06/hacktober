@@ -4,6 +4,7 @@ import AppHeader from './components/layout/AppHeader'
 import NewComplaint from './pages/NewComplaint'
 import Landing from './pages/Landing'
 import Splash from './components/Splash'
+import ErrorBoundary from './components/ErrorBoundary'
 import Complaints from './pages/Complaints'
 
 export default function App() {
@@ -24,12 +25,14 @@ export default function App() {
         tabIndex={-1}
         className={`flex-1 focus:outline-none ${landing ? '' : 'mx-auto w-full max-w-content px-4 pb-16 pt-6 sm:px-6 sm:pt-10'}`}
       >
+        <ErrorBoundary>
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/new" element={<NewComplaint />} />
           <Route path="/complaints" element={<Complaints />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        </ErrorBoundary>
       </main>
     </div>
   )

@@ -38,7 +38,7 @@ def write_departments(settings, records):
 def dept(id, routes, categories, verified=False, days=7):
     return {"id": id, "name": f"TEST ONLY {id}", "address": "TEST ADDRESS", "submit_via": "TEST CHANNEL",
             "response_days": days, "routes": routes, "categories": categories,
-            "areas": ["*"], "verified": verified}
+            "areas": ["*"], "verified": verified, "response_days_verified": verified}
 
 
 # -- POST /api/drafts ---------------------------------------------------------------
@@ -49,7 +49,7 @@ def test_create_draft_returns_the_prd_shape_and_persists(client):
     assert body["decision"]["rule_id"] == "R2" and body["route"] == "local_body"
     assert body["route_override"] is None
     assert set(body["department"]) == {"id", "name", "address", "submit_via", "response_days"}
-    assert body["department"]["id"] == "demo-local-streetlight"
+    assert body["department"]["id"] == "local-body-generic"  # no known city in the address
     stored = client.app.state.db.get_draft(body["draft_id"])
     assert stored.session_id == s.id and stored.html == body["html"]
     assert stored.complainant.name == "R. Priya"
@@ -58,7 +58,7 @@ def test_create_draft_returns_the_prd_shape_and_persists(client):
 def test_placeholder_department_is_flagged_and_gives_no_deadline(client):
     _, body = create_draft(client)
     assert body["department_verified"] is False
-    assert "DEMO DATA" in body["html"] and "டெமோ தரவு" in body["html"]
+    assert "could not be confirmed" in body["html"] and "உறுதிசெய்யப்படவில்லை" in body["html"]
     en, ta = body["next_steps"]["en"], body["next_steps"]["ta"]
     assert "has not been verified" in en and "within" not in en
     assert "சரிபார்க்கப்படவில்லை" in ta and "நாட்களுக்குள்" not in ta
@@ -71,19 +71,19 @@ def test_verified_department_states_its_configured_response_days(settings):
         _, body = create_draft(c)
     assert body["department_verified"] is True and body["department"]["response_days"] == 7
     assert "within 7 days" in body["next_steps"]["en"] and "7 நாட்களுக்குள்" in body["next_steps"]["ta"]
-    assert "DEMO DATA" not in body["html"]
+    assert "could not be confirmed" not in body["html"]
 
 
 def test_next_steps_use_fixed_text_from_rules_and_department_channel(client):
     _, body = create_draft(client)
     rules = client.app.state.rules.next_steps
     assert body["next_steps"]["en"].startswith(rules.routes["local_body"].en)
-    assert "DEMO PLACEHOLDER" in body["next_steps"]["en"]  # submit_via from departments.json
+    assert "the office of your local body" in body["next_steps"]["en"]  # submit_via from departments.json
 
 
 def test_cm_helpline_draft_has_placeholder_portal_fields_flagged_unverified(client):
     s, body = create_draft(client, rule_id="R3")
-    assert body["route"] == "cm_helpline" and body["department"]["id"] == "demo-cm-helpline"
+    assert body["route"] == "cm_helpline" and body["department"]["id"] == "cm-helpline"
     assert list(body["portal_fields"]) == ["Grievance details", "Communication address"]
     assert "The streetlight is dead." in body["portal_fields"]["Grievance details"]
     assert "தெருவிளக்கு எரியவில்லை." in body["portal_fields"]["Grievance details"]
@@ -100,7 +100,7 @@ def test_local_body_and_rti_have_no_portal_fields_because_the_prd_defines_none(c
 def test_rti_draft_uses_the_rti_template_and_lists_requested_info(client):
     s = seed_session(client, rule_id="R1", wants_records=True, requested_info=["Road repair budget"])
     body = post(client, draft_body(s.id)).json()
-    assert body["route"] == "rti" and "Information requested" in body["html"]
+    assert body["route"] == "rti" and "following information" in body["html"]
     assert "Road repair budget" in body["html"]
 
 
@@ -109,7 +109,7 @@ def test_override_is_recorded_beside_the_rule_decision_not_instead_of_it(client)
     body = post(client, draft_body(s.id, route_override="cm_helpline")).json()
     assert body["decision"]["route"] == "local_body" and body["decision"]["rule_id"] == "R2"
     assert body["route"] == "cm_helpline" and body["route_override"] == "cm_helpline"
-    assert body["department"]["id"] == "demo-cm-helpline"
+    assert body["department"]["id"] == "cm-helpline"
     stored = client.app.state.db.get_draft(body["draft_id"])
     assert stored.decision.route == "local_body" and stored.route_override == "cm_helpline"
     assert stored.effective_route == "cm_helpline"
@@ -244,7 +244,7 @@ def test_edits_never_change_trusted_data(client):
                                                  "summary_ta": "ta"}}).json()
     assert r["decision"] == d["decision"] and r["department"] == d["department"]
     assert r["route"] == d["route"] and r["next_steps"] == d["next_steps"]
-    assert r["department_verified"] is False and r["portal_fields_verified"] is False
+    assert r["department_verified"] == d["department_verified"] and r["portal_fields_verified"] is False
 
 
 def test_edited_text_is_escaped_in_the_document(client):
@@ -266,7 +266,8 @@ def test_edits_accumulate_and_feed_portal_fields(client):
 def test_location_and_duration_can_be_cleared_but_summaries_cannot(client):
     _, d = create_draft(client)
     r = patch(client, d["draft_id"], {"fields": {"location_text": "", "duration": ""}})
-    assert r.status_code == 200 and r.json()["html"].count("Not provided / வழங்கப்படவில்லை") >= 2
+    html = r.json()["html"]
+    assert r.status_code == 200 and "my locality" in html and "எங்கள் பகுதி" in html  # the subject has no place to name
     assert patch(client, d["draft_id"], {"fields": {"summary_en": "   "}}).status_code == 400
     assert patch(client, d["draft_id"], {"fields": {"summary_ta": ""}}).status_code == 400
 
