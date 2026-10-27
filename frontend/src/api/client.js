@@ -115,6 +115,27 @@ export function pdfUrl(draftId) {
   return USE_MOCKS ? '/mock/sample.pdf' : `/api/drafts/${enc(draftId)}/pdf`
 }
 
+/**
+ * One-line street address for GPS coordinates, from OpenStreetMap Nominatim. This is the only call that leaves our
+ * server: the citizen's coordinates go to OSM. Resolves to null on any failure (the caller then asks the user to type it).
+ */
+export async function reverseGeocode(lat, lon, language) {
+  if (USE_MOCKS) return mocked(() => '12, Gandhi Street, Anna Nagar, Chennai 600040')
+  try {
+    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=18&addressdetails=1&lat=${lat}&lon=${lon}&accept-language=${language}`
+    const res = await fetch(url)
+    if (!res.ok) return null
+    const a = (await res.json()).address
+    if (!a) return null
+    // Door number, street, locality, city, pin: the parts a citizen would write, not OSM's ward/district chain.
+    const street = [a.house_number, a.road].filter(Boolean).join(', ')
+    const parts = [a.building, street, a.neighbourhood ?? a.suburb, a.city_district, a.city ?? a.town ?? a.village ?? a.county, a.postcode]
+    return [...new Set(parts.filter(Boolean))].join(', ') || null
+  } catch {
+    return null
+  }
+}
+
 /** Resolves to the PDF Blob; rejects with an ApiError (e.g. PDF_UNAVAILABLE) instead of saving an error page. */
 export async function fetchPdf(draftId) {
   if (USE_MOCKS) return (await fetch(pdfUrl(draftId))).blob()
