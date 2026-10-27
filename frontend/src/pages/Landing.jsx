@@ -41,7 +41,7 @@ function Letter() {
   return (
     <form
       onSubmit={start}
-      className="rotate-0 space-y-5 rounded-[6px] bg-surface p-6 sm:p-8 lg:-rotate-[1.5deg]"
+      className="rotate-0 space-y-4 rounded-[6px] bg-surface p-6 lg:-rotate-[1.5deg]"
       aria-label={t('landing.sheet.title')}
     >
       <p className="text-card font-bold text-heading">{t('landing.sheet.title')}</p>
@@ -52,7 +52,7 @@ function Letter() {
       <Textarea
         label={t('landing.sheet.label')}
         hint={t('landing.sheet.hint')}
-        rows={4}
+        rows={3}
         marker={false}
         maxLength={5000}
         lang={uiLang}
@@ -70,37 +70,27 @@ function Letter() {
 function Hero() {
   const { t, uiLang } = useLanguage()
   // Tamil runs longer and its glyphs are wider, so it steps down to stay within two lines.
-  const size = uiLang === 'ta' ? 'text-[clamp(1.6rem,3.6vw+0.5rem,3.4rem)]' : 'text-[clamp(2.4rem,5.4vw+0.5rem,5rem)]'
+  const size = uiLang === 'ta' ? 'text-[clamp(1.7rem,min(3vw,6vh),3rem)]' : 'text-[clamp(2.4rem,min(4.6vw,8.5vh),4.5rem)]'
+  const rise = (delay) => ({
+    initial: { opacity: 0, y: 28 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] },
+  })
   return (
-    <section aria-labelledby="hero-title" className="bg-heading">
-      <div className={`${FRAME} space-y-12 pb-16 pt-12 sm:pb-24 sm:pt-20`}>
-        <motion.h1
-          id="hero-title"
-          className={`font-bold leading-[1.08] text-white ${size} ${uiLang === 'ta' ? '' : 'max-w-[22ch]'}`}
-          initial={{ opacity: 0, y: 28 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        >
-          {t('landing.hero.title')}
-        </motion.h1>
-        <div className="grid items-start gap-12 lg:grid-cols-2 lg:gap-16">
-          <motion.div
-            className="space-y-6"
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
-          >
+    <section aria-labelledby="hero-title" className="bg-heading lg:flex lg:min-h-[calc(100svh-6.5rem)] lg:items-center">
+      <div className={`${FRAME} grid items-center gap-10 pb-12 pt-10 sm:pb-16 sm:pt-12 lg:grid-cols-[1.1fr_1fr] lg:gap-16`}>
+        <div className="space-y-6 sm:space-y-8">
+          <motion.h1 id="hero-title" className={`font-bold leading-[1.08] text-white ${size}`} {...rise(0)}>
+            {t('landing.hero.title')}
+          </motion.h1>
+          <motion.div className="space-y-4" {...rise(0.12)}>
             <p className="max-w-[40ch] text-card leading-relaxed text-white/90">{t('landing.hero.lead')}</p>
             <p className="text-white/70">{t('landing.hero.note')}</p>
           </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 32 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.22, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <Letter />
-          </motion.div>
         </div>
+        <motion.div {...rise(0.22)}>
+          <Letter />
+        </motion.div>
       </div>
     </section>
   )
