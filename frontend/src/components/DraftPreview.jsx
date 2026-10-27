@@ -8,13 +8,11 @@ import LoadingState from './ui/LoadingState'
 
 const TEXT_FIELDS = ['summary_en', 'summary_ta', 'location_text', 'duration']
 const PERSON_FIELDS = ['name', 'address', 'phone']
-const toLines = (text) => text.split('\n').map((s) => s.trim()).filter(Boolean)
 
 function formFrom(draft, complainant) {
   const f = draft.editable_fields ?? {}
   return {
     ...Object.fromEntries(TEXT_FIELDS.map((k) => [k, f[k] ?? ''])),
-    requested_info: (f.requested_info ?? []).join('\n'),
     ...Object.fromEntries(PERSON_FIELDS.map((k) => [k, complainant[k] ?? ''])),
   }
 }
@@ -24,8 +22,6 @@ function diff(form, draft, complainant, editPerson) {
   const orig = draft.editable_fields ?? {}
   const fields = {}
   for (const k of TEXT_FIELDS) if (form[k] !== (orig[k] ?? '')) fields[k] = form[k]
-  const info = toLines(form.requested_info)
-  if (info.join('\n') !== (orig.requested_info ?? []).join('\n')) fields.requested_info = info
   const person = {}
   if (editPerson) for (const k of PERSON_FIELDS) if (form[k].trim() !== (complainant[k] ?? '')) person[k] = form[k].trim()
   return { fields, complainant: Object.keys(person).length ? person : undefined }
@@ -85,14 +81,6 @@ export default function DraftPreview({ draft, complainant, onSave, saving, error
           <Textarea label={t('field.summary_en')} lang="en" rows={4} value={form.summary_en} onChange={set('summary_en')} disabled={saving} />
           <Input label={t('field.location_text')} value={form.location_text} onChange={set('location_text')} disabled={saving} />
           <Input label={t('field.duration')} value={form.duration} onChange={set('duration')} disabled={saving} />
-          <Textarea
-            label={t('field.requested_info')}
-            hint={t('field.requested_infoHint')}
-            rows={3}
-            value={form.requested_info}
-            onChange={set('requested_info')}
-            disabled={saving}
-          />
           {editPerson && (
             <div className="space-y-5 border-t border-line pt-5">
               <Input label={t('form.name')} required value={form.name} onChange={set('name')} error={errors.name && t(errors.name)} disabled={saving} />

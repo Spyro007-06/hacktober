@@ -1,5 +1,6 @@
+import { useState } from 'react'
 import { ArrowLeft, ClipboardCheck, Download, Landmark } from 'lucide-react'
-import { pdfUrl } from '../api/client'
+import { fetchPdf } from '../api/client'
 import { useComplaint } from '../context/ComplaintContext'
 import { useLanguage } from '../context/LanguageContext'
 import DraftPreview from '../components/DraftPreview'
@@ -7,6 +8,7 @@ import PortalFields from '../components/PortalFields'
 import NextSteps from '../components/NextSteps'
 import FlowError from '../components/FlowError'
 import Button from '../components/ui/Button'
+import ErrorBanner from '../components/ui/ErrorBanner'
 import LoadingState from '../components/ui/LoadingState'
 import PageHeading from '../components/ui/PageHeading'
 
@@ -17,7 +19,21 @@ export default function DraftPage({ focusHeading }) {
   const dept = draft.department
   const route = draft.decision?.route
   const filing = pending === 'file'
+  const [pdf, setPdf] = useState({ busy: false, error: null })
   const hasPortalFields = Object.keys(draft.portal_fields ?? {}).length > 0
+
+  async function downloadPdf() {
+    setPdf({ busy: true, error: null })
+    try {
+      const url = URL.createObjectURL(await fetchPdf(draft.draft_id))
+      const a = Object.assign(document.createElement('a'), { href: url, download: `kural_${route}_${draft.draft_id}.pdf` })
+      a.click()
+      URL.revokeObjectURL(url)
+      setPdf({ busy: false, error: null })
+    } catch (error) {
+      setPdf({ busy: false, error })
+    }
+  }
 
   return (
     <div className="space-y-10">
@@ -53,8 +69,8 @@ export default function DraftPage({ focusHeading }) {
           error={<FlowError from="save" />}
           editPerson={fromWizard}
         />
-        {/* Plain link with download: no new tab, no fetch. */}
-        <Button as="a" href={pdfUrl(draft.draft_id)} download={`kural_${route}_${draft.draft_id}.pdf`} size="lg" icon={Download}>
+        {pdf.error && <ErrorBanner error={pdf.error} onRetry={downloadPdf} />}
+        <Button size="lg" icon={Download} onClick={downloadPdf} loading={pdf.busy}>
           {t('btn.download')}
         </Button>
       </div>

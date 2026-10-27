@@ -91,8 +91,10 @@ export function answerSession(sessionId, { answers = {}, confirmPhotoMismatch = 
     : request('POST', `/sessions/${enc(sessionId)}/answers`, { json: body })
 }
 
-export function getSession(sessionId) {
-  return USE_MOCKS ? mocked(() => mock.getSession(sessionId)) : request('GET', `/sessions/${enc(sessionId)}`)
+export async function getSession(sessionId) {
+  if (USE_MOCKS) return mocked(() => mock.getSession(sessionId))
+  const s = await request('GET', `/sessions/${enc(sessionId)}`)
+  return { ...s, session_id: s.session_id ?? s.id } // the stored-session shape names it `id`
 }
 
 export function createDraft({ sessionId, complainant, routeOverride = null }) {
@@ -111,6 +113,12 @@ export function updateDraft(draftId, { fields = {}, complainant } = {}) {
 /** URL for a plain <a download> link; no fetch needed. */
 export function pdfUrl(draftId) {
   return USE_MOCKS ? '/mock/sample.pdf' : `/api/drafts/${enc(draftId)}/pdf`
+}
+
+/** Resolves to the PDF Blob; rejects with an ApiError (e.g. PDF_UNAVAILABLE) instead of saving an error page. */
+export async function fetchPdf(draftId) {
+  if (USE_MOCKS) return (await fetch(pdfUrl(draftId))).blob()
+  return (await request('GET', `/drafts/${enc(draftId)}/pdf`, { raw: true })).blob()
 }
 
 /** Resolves to a WAV Blob. Rejects with status 501 when no TTS engine is available. */
