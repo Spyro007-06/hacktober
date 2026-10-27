@@ -47,7 +47,7 @@ The screenshots above come from the frontend running on its built-in mock backen
 |---|---|
 | **Multimodal extraction.** Complaint text plus up to three photos go in; a strictly typed JSON object comes out. | `backend/prompts/extract.txt`, `backend/services/extraction.py` |
 | **Photo and claim check.** Gemma describes the photos and flags a mismatch (for example "pothole" but the photo shows garbage) before anything is drafted. | same prompt, `photo_matches_claim` and `photo_mismatch_note` |
-| **Bilingual summaries.** Tamil and English summaries of only the stated facts. | `summary_en`, `summary_ta` |
+| **The petition body.** Gemma writes the body of the letter in formal English and formal Tamil: first person, only stated facts, earlier ignored complaints mentioned. Subject, salutation, request and closing are fixed template text. For an RTI it also writes the numbered questions in both languages. | `summary_en`, `summary_ta`, `requested_info`, `backend/templates/_letter_*.html` |
 | **Missing-field detection.** Gemma lists what is unknown; the questions themselves are fixed text. | `missing_fields`, `backend/data/rules.json` |
 | **One switch for online and offline.** Gemma 4 through the Gemini API, or Gemma 4 E2B on a local Ollama (`gemma4:e2b`). Only `MODEL_MODE` changes; nothing else differs. | `backend/services/llm.py`, `PUT /api/config/mode` |
 
@@ -63,6 +63,7 @@ Safeguards in code:
   place for a route). Invalid output gets exactly one corrective retry, then a clear error.
 - The prompt tells the model to treat the complaint as data and ignore any instructions inside it.
 - Photos are resized before any model call.
+- Gemma 4 "thinks" by default, which took 14 to 28 s per call; `thinkingLevel: minimal` gives the same answers in 4 to 6 s. Transient Gemini errors and stalled calls are retried (live success over 20 calls: 55 % before, 95 % after).
 - Speech-to-text mistakes can change a route, so a spoken complaint must be reviewed and confirmed
   by the citizen before it is analysed.
 - Anything not verified is labelled in the document (see Status).
