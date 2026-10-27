@@ -120,7 +120,6 @@ export function pdfUrl(draftId) {
  * server: the citizen's coordinates go to OSM. Resolves to null on any failure (the caller then asks the user to type it).
  */
 export async function reverseGeocode(lat, lon, language) {
-  if (USE_MOCKS) return mocked(() => '12, Gandhi Street, Anna Nagar, Chennai 600040')
   try {
     const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=18&addressdetails=1&lat=${lat}&lon=${lon}&accept-language=${language}`
     const res = await fetch(url)
