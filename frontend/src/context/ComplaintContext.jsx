@@ -34,7 +34,7 @@ const initialState = () => ({
   spoken: false, // true once any voice clip was transcribed into the text
   clips: [], // { id, blob, url, seconds, status: transcribing | done | error, error }
   photos: [], // { id, file, url }
-  location: null, // { lat, lon } only after the user explicitly shares it
+  location: null, // { lat, lon, accuracy, address? } only after the user explicitly shares it
   session: null,
   rounds: 0, // follow-up answer rounds submitted
   answers: {},
@@ -167,7 +167,9 @@ export function ComplaintProvider({ children }) {
             lon: s.location?.lon,
             spoken: s.spoken,
           })
-          update({ session, rounds: 0, answers: {}, step: stepForStatus(session.status) })
+          // A GPS address pre-answers the "where" question; the citizen can still edit it.
+          const gps = s.location?.address
+          update({ session, rounds: 0, answers: gps ? { location_text: gps } : {}, step: stepForStatus(session.status) })
         },
         () => submitDescribe(),
       ),
@@ -313,7 +315,17 @@ export function ComplaintProvider({ children }) {
       saveDraft,
       markFiled,
       backToRoute: () => update({ step: 'route', error: null, retry: null }),
-      setLocation: (location) => update({ location }),
+      // With an address, also prefill the places that ask for one (never overwriting what the user typed).
+      setLocation: (location) =>
+        update((s) => {
+          const address = location?.address
+          if (!address) return { location }
+          return {
+            location,
+            answers: s.answers.location_text ? s.answers : { ...s.answers, location_text: address },
+            complainant: s.complainant.address ? s.complainant : { ...s.complainant, address },
+          }
+        }),
       /** Open a draft that did not come from this wizard (escalation): fresh state, straight to Draft. */
       openDraft: (draft) => {
         writeStored(null)

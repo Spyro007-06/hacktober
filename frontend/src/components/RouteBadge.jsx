@@ -38,7 +38,7 @@ export default function RouteBadge({ decision, uiLang, override, onOverride, dis
             <span className="rounded-control border border-line bg-background px-2.5 py-0.5 font-semibold">
               {t('route.rule')} {decision.rule_id}
             </span>
-            {decision.escalation_level > 0 && (
+            {decision.escalation_level > 1 && (
               <span className="rounded-control border border-primary bg-primary-soft px-2.5 py-0.5 font-bold text-primary-ink">
                 {t('route.escalation', { n: decision.escalation_level })}
               </span>

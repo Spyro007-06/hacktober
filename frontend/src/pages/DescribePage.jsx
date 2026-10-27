@@ -31,6 +31,7 @@ export default function DescribePage({ focusHeading }) {
         rows={6}
         lang={complaintLang}
         placeholder={t('text.placeholder')}
+        maxLength={5000}
         value={text}
         onChange={(e) => setText(e.target.value)}
         disabled={submitting}

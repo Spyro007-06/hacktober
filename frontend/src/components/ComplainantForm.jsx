@@ -10,6 +10,7 @@ export default function ComplainantForm({ value, onChange, errors = {}, disabled
         label={t('form.name')}
         required
         autoComplete="name"
+        maxLength={200}
         value={value.name}
         onChange={(e) => onChange({ name: e.target.value })}
         error={errors.name && t(errors.name)}
@@ -21,6 +22,7 @@ export default function ComplainantForm({ value, onChange, errors = {}, disabled
         required
         rows={3}
         autoComplete="street-address"
+        maxLength={500}
         value={value.address}
         onChange={(e) => onChange({ address: e.target.value })}
         error={errors.address && t(errors.address)}
@@ -33,6 +35,7 @@ export default function ComplainantForm({ value, onChange, errors = {}, disabled
         type="tel"
         inputMode="tel"
         autoComplete="tel"
+        maxLength={20}
         value={value.phone}
         onChange={(e) => onChange({ phone: e.target.value })}
         disabled={disabled}
