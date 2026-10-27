@@ -106,6 +106,48 @@ One setting, `MODEL_MODE`, selects the provider. Nothing else changes the code p
 - API keys live only in `.env` (git-ignored). They are sent in a request header, never
   in a URL, and never logged or returned in errors.
 
+### Gemma 4 E2B through Ollama (Windows, offline)
+
+Already wired in: `services/llm.py` (`OllamaProvider`, `POST {OLLAMA_URL}/api/chat`, JSON `format`
+schema) -> `services/extraction.py` (strict Pydantic `Extraction`, one corrective retry) ->
+`services/routing.py` (the route and department come only from Python rules and `departments.json`;
+the model never chooses them, and nothing is ever submitted to a government site). Only the backend
+calls Ollama; the React app talks to `/api/...` only, and there is no API key for the local model.
+
+```powershell
+ollama pull gemma4:e2b                     # once; ~4.3 GB
+ollama list                                # gemma4:e2b must be listed
+```
+
+In `.env` (repo root; copy `.env.example`): `MODEL_MODE=offline`, `OLLAMA_URL=http://localhost:11434`,
+`OLLAMA_MODEL=gemma4:e2b`, and `MODEL_TIMEOUT_S=120` (a CPU run of the 4.3 GB model is slow).
+
+```powershell
+.\.venv\Scripts\python.exe -m backend.provider_check          # connectivity + model installed (no complaint data)
+.\.venv\Scripts\python.exe -m uvicorn backend.main:app --port 8000
+cd frontend; npm install; npm run dev:real                     # real backend (npm run dev = mock data)
+```
+
+Test the workflow in the browser (http://localhost:5173): describe a complaint in Tamil or English ->
+answer the follow-up question (e.g. street) -> check the route and reason -> enter your details ->
+generate the draft -> download the PDF -> "Mark as filed" -> My complaints. Errors map as follows:
+Ollama stopped or `OLLAMA_URL` wrong = `503`; wrong `OLLAMA_MODEL` (Ollama answers 404) = `503`
+"model was not found"; slower than `MODEL_TIMEOUT_S` = `504`; JSON that fails validation twice = `422`.
+Free about 6 GB of RAM first: Gemma 4 E2B plus Whisper share the machine.
+
+### Online mode (Gemma 4 on the Gemini API): tested status
+
+Checked live on 2026-10-27 with fictional complaints only (online sends text to Google):
+
+- `python -m backend.provider_check` with `MODEL_MODE=online`: `gemma-4-31b-it` and `gemma-4-26b-a4b-it` are
+  listed for the configured key (a model lookup only; no complaint data).
+- Generation is **unreliable**: one short English request on `gemma-4-31b-it` returned valid JSON (34.6 s);
+  the other six attempts failed (Tamil text: timeout, then 503; generated image: 500 twice; English again: 503;
+  `gemma-4-26b-a4b-it` Tamil text: 500). Kural maps these to `504`/`503` without leaking details.
+  Treat online mode as unverified for Tamil and photos, and use offline mode (Ollama `gemma4:e2b`) for the demo
+  until it is re-tested. `gemini-2.5-flash` answered `404` for this key (not a Gemma model; not a Kural default).
+- Set `MODEL_TIMEOUT_S=120` for online as well (the default 30 s is shorter than the one success).
+
 ### Test the provider connection manually
 
 ```
