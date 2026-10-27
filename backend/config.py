@@ -35,7 +35,7 @@ class Settings(BaseSettings):
     tts_voice_ta: Optional[Path] = None  # Piper .onnx voice (its .onnx.json sits beside it)
     tts_voice_en: Optional[Path] = None
     tts_timeout_s: int = Field(30, ge=1, le=300)
-    tts_max_chars: int = Field(1500, ge=1, le=5000)
+    tts_max_chars: int = Field(3000, ge=1, le=5000)
     audio_chunk_s: int = Field(30, ge=1, le=30)  # Whisper/Gemma window is 30 s (PRD p.5)
     model_timeout_s: int = Field(30, ge=1)
     max_photos: int = Field(3, ge=0, le=3)

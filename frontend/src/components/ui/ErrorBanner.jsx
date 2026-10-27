@@ -18,6 +18,7 @@ export default function ErrorBanner({ error, onRetry, actionLabel, onAction }) {
   return (
     <Banner tone="error">
       <p className="font-semibold text-heading">{t(errorKey(error))}</p>
+      {error.code === 'BAD_INPUT' && error.status === 400 && error.message && <p className="text-support text-muted">{error.message}</p>}
       {(onRetry || onAction) && (
         <div className="flex flex-wrap gap-3">
           {onRetry && (

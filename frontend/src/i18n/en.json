@@ -41,6 +41,7 @@
   "photos.max": "You can add up to 3 photos.",
   "photos.remaining": "{n} more photos allowed",
   "photos.remove": "Remove photo {n}",
+  "photos.tooBig": "Each photo must be under 8 MB.",
   "photos.invalid": "Only image files can be added.",
   "location.use": "Use my location",
   "location.got": "Location added",

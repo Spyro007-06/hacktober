@@ -6,6 +6,8 @@ import { useLanguage } from '../context/LanguageContext'
 import Button from './ui/Button'
 import Banner from './ui/Banner'
 
+const MAX_PHOTO_BYTES = 8 * 1024 * 1024 // backend limit per photo
+
 export default function PhotoUpload() {
   const { t } = useLanguage()
   const { photos, addPhotos, removePhoto, pending } = useComplaint()
@@ -18,8 +20,8 @@ export default function PhotoUpload() {
   function onFiles(e) {
     const files = [...e.target.files]
     e.target.value = '' // allow picking the same file again
-    const images = files.filter((f) => f.type.startsWith('image/'))
-    if (images.length < files.length) setNotice(t('photos.invalid'))
+    const images = files.filter((f) => f.type.startsWith('image/') && f.size <= MAX_PHOTO_BYTES)
+    if (images.length < files.length) setNotice(files.some((f) => f.size > MAX_PHOTO_BYTES) ? t('photos.tooBig') : t('photos.invalid'))
     else if (images.length > remaining) setNotice(t('photos.max'))
     else setNotice(null)
     if (images.length) addPhotos(images)
