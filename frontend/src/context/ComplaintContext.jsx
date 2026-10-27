@@ -31,6 +31,7 @@ const initialState = () => ({
   step: 'describe', // describe | clarify | route | draft | done
   complaintLang: 'ta', // sent to the backend; independent of the UI language
   text: '',
+  spoken: false, // true once any voice clip was transcribed into the text
   clips: [], // { id, blob, url, seconds, status: transcribing | done | error, error }
   photos: [], // { id, file, url }
   location: null, // { lat, lon } only after the user explicitly shares it
@@ -113,6 +114,7 @@ export function ComplaintProvider({ children }) {
         const { transcript } = await api.transcribe(clip.blob, stateRef.current.complaintLang)
         update((s) => ({
           text: [s.text.trim(), transcript.trim()].filter(Boolean).join(' '),
+          spoken: true,
           clips: s.clips.map((c) => (c.id === clip.id ? { ...c, status: 'done', error: null } : c)),
         }))
       } catch (error) {
@@ -163,6 +165,7 @@ export function ComplaintProvider({ children }) {
             photos: s.photos.map((p) => p.file),
             lat: s.location?.lat,
             lon: s.location?.lon,
+            spoken: s.spoken,
           })
           update({ session, rounds: 0, answers: {}, step: stepForStatus(session.status) })
         },

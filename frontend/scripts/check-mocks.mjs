@@ -56,7 +56,7 @@ assert.equal(m.answerSession(s2.session_id, { answers: {} }).status, 'ready')
 // Photo mismatch: stays until confirmed
 const pm = m.createSession({ text: 'pothole', photos: [photo] })
 assert.equal(m.answerSession(pm.session_id, {}).status, 'photo_mismatch')
-assert.equal(m.answerSession(pm.session_id, { confirm_photo_mismatch: true }).status, 'ready')
+assert.equal(m.answerSession(pm.session_id, { answers: { photo_mismatch: 'confirm' } }).status, 'ready')
 
 // TTS always 501 in mock mode
 assert.throws(() => m.tts({ text: 'x', language: 'ta' }), (e) => e.status === 501)

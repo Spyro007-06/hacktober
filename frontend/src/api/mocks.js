@@ -214,11 +214,11 @@ export function createSession({ text, photos = [] }) {
   return clone(session)
 }
 
-export function answerSession(id, { answers = {}, confirm_photo_mismatch = false } = {}) {
+export function answerSession(id, { answers = {} } = {}) {
   const rec = getRecord(id)
   const s = rec.session
 
-  if (s.status === 'photo_mismatch' && confirm_photo_mismatch) {
+  if (s.status === 'photo_mismatch' && answers.photo_mismatch === 'confirm') {
     Object.assign(s, { status: 'ready', decision: clone(DECISIONS.local_body), follow_up_questions: [] })
   } else if (s.status === 'needs_info') {
     rec.rounds += 1
