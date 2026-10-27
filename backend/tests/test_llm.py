@@ -75,13 +75,17 @@ def sent_body(model, images=()):
 
 @pytest.mark.parametrize("model", ["gemma-4-31b-it", "gemma-4-26b-a4b-it", "models/gemma-4-31b-it"])
 def test_gemma4_body_matches_googles_documented_minimal_shape(model):
-    # Exactly the official single-turn REST body: contents/parts only.
-    assert sent_body(model) == {"contents": [{"parts": [{"text": "PROMPT"}]}]}
+    # The official single-turn REST body (contents/parts), plus the minimal thinking level.
+    assert sent_body(model) == {
+        "contents": [{"parts": [{"text": "PROMPT"}]}],
+        "generationConfig": {"thinkingConfig": {"thinkingLevel": "minimal"}},
+    }
 
 
-def test_gemma4_body_has_no_role_temperature_or_generation_config():
+def test_gemma4_body_has_no_role_or_temperature_and_only_the_thinking_config():
     body = sent_body("gemma-4-31b-it", [IMG])
-    assert "generationConfig" not in body and "role" not in body["contents"][0]
+    assert "role" not in body["contents"][0]
+    assert list(body["generationConfig"]) == ["thinkingConfig"]
     assert "temperature" not in json.dumps(body)
     assert len(body["contents"]) == 1
 

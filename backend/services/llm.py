@@ -27,6 +27,10 @@ log = logging.getLogger("kural.llm")
 
 GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta"
 GEMMA4_PREFIX = "gemma-4"  # these model ids get the minimal documented request body
+# Gemma 4 "thinks" by default: ~500 hidden tokens made one extraction take 14-28 s against the
+# 30 s timeout (measured on gemma-4-26b-a4b-it). Extraction is a fill-in-the-fields task, so the
+# lowest level gives the same answer in about 3 s. Only thinkingConfig is added to the minimal body.
+GEMMA4_THINKING_LEVEL = "minimal"
 
 
 @dataclass(frozen=True)
@@ -138,10 +142,13 @@ class GeminiProvider(LLMProvider):
             parts.append({"inline_data": {
                 "mime_type": img.mime_type, "data": base64.b64encode(img.data).decode("ascii")}})
         if self.model.startswith(GEMMA4_PREFIX):
-            # Google's documented Gemma 4 single-turn body is just contents/parts:
-            # no role, no generationConfig. Kural's role + temperature=0 body got
-            # HTTP 500 on gemma-4-31b-it (observed 4x); the bare body worked.
-            body: dict[str, Any] = {"contents": [{"parts": parts}]}
+            # Google's documented Gemma 4 single-turn body is contents/parts: no role and no
+            # temperature (Kural's role + temperature=0 body got HTTP 500 on gemma-4-31b-it,
+            # observed 4x). The only addition is the thinking level, see GEMMA4_THINKING_LEVEL.
+            body: dict[str, Any] = {
+                "contents": [{"parts": parts}],
+                "generationConfig": {"thinkingConfig": {"thinkingLevel": GEMMA4_THINKING_LEVEL}},
+            }
         else:
             body = {"contents": [{"role": "user", "parts": parts}],
                     "generationConfig": {"temperature": 0}}
