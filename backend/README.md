@@ -40,9 +40,25 @@ Not implemented: GPS ward detection (P1) and any submission to government portal
   the stored complaint's own reference and dates (Tamil wording needs native review). The original
   complaint becomes `escalated` only when the escalation draft is filed with `POST /api/complaints`.
 
-Known frontend mismatches (not fixed here): the frontend sends `confirm_photo_mismatch` to
-`/answers`, but this backend expects the answer key `photo_mismatch` = `confirm`; and it does not yet
-send `input_source` / `transcript_confirmed` to `POST /api/sessions` (typed text still works).
+**Frontend contract** (`docs/frontend-requirements.pdf` section 6 and `docs/frontend-requirements.md`; checked by
+`backend/tests/test_api_contract.py`):
+
+- `POST /sessions/{id}/answers` takes `{"answers": {...}, "confirm_photo_mismatch": bool}`. `answers` is required
+  but may be empty: a skipped question still counts as a round (after 2 rounds the session continues with what
+  is filled; nothing is invented) and makes no model call. The PRD's `photo_mismatch="confirm"` answer still works.
+  Unknown fields are a `400`.
+- `GET /sessions/{id}` has the same fields as `POST /sessions` (`session_id`, `status`, `extraction`, `decision`,
+  `ward`, `follow_up_questions`, `notice`) plus the stored session, so a refresh can recover.
+- Every draft response (`POST`/`PATCH /drafts`, `POST /complaints/{id}/escalate`) includes `editable_fields`
+  (`summary_en`, `summary_ta`, `location_text`, `duration`, `requested_info`). `requested_info` is a list of
+  questions and is editable (blank lines dropped, at most 20 items of 500 characters).
+- `GET /complaints` is sorted overdue first, then by `days_left` ascending.
+- `PUT /config/mode` to `offline` is a `503` when Ollama is not running or the model is not installed.
+- `POST /transcribe` accepts WebM, WAV and MP4/M4A (Safari/iOS record MP4). MP4 is a change from the PRD's
+  "WebM/WAV only"; the container is chosen from the file header and FFmpeg is restricted to that demuxer.
+
+Still open on the frontend side: it does not yet send `input_source=speech` / `transcript_confirmed=true` to
+`POST /sessions` for dictated text (typed text works; see "Spoken complaints").
 
 ## Setup (Windows, Python 3.14)
 

@@ -11,7 +11,7 @@ from backend.errors import AppError
 from backend.services import stt
 from backend.services.stt import (SAMPLE_RATE, decode_audio_bytes, detect_format, join_transcripts,
                                   split_chunks, validate_upload)
-from .conftest import TAMIL_SENTENCE, make_wav, make_webm
+from .conftest import TAMIL_SENTENCE, make_mp4, make_wav, make_webm
 
 MB = 1024 * 1024
 
@@ -29,7 +29,6 @@ def test_wav_and_webm_are_recognised_by_their_headers():
 @pytest.mark.parametrize("data", [
     b"ID3\x04\x00\x00" + b"\x00" * 64,                      # mp3
     b"OggS\x00\x02" + b"\x00" * 64,                          # ogg
-    b"\x00\x00\x00\x18ftypmp42" + b"\x00" * 64,              # mp4 / m4a
     b"\x89PNG\r\n\x1a\n" + b"\x00" * 64,                     # an image
     b"RIFF\x00\x00\x00\x00AVI LIST" + b"\x00" * 32,          # RIFF but not WAVE
     b"\x1a\x45\xdf\xa3\x9f\x42\x82\x88matroska" + b"\x00" * 32,  # EBML but a Matroska video, not WebM
@@ -58,13 +57,14 @@ def test_size_limit_is_enforced_exactly():
 
 
 @pytest.mark.parametrize("mime", ["", None, "audio/wav", "audio/x-wav", "audio/webm", "video/webm",
-                                  "application/octet-stream", "audio/webm;codecs=opus", "AUDIO/WAV"])
+                                  "application/octet-stream", "audio/webm;codecs=opus", "AUDIO/WAV",
+                                  "audio/mp4", "video/mp4", "audio/x-m4a"])
 def test_plausible_declared_types_are_accepted(mime):
     assert validate_upload(make_wav(0.1), mime, MB) == "wav"
 
 
-@pytest.mark.parametrize("mime", ["image/png", "text/plain", "audio/mpeg", "audio/ogg", "audio/mp4",
-                                  "application/json", "application/pdf", "video/mp4"])
+@pytest.mark.parametrize("mime", ["image/png", "text/plain", "audio/mpeg", "audio/ogg",
+                                  "application/json", "application/pdf"])
 def test_unsupported_declared_types_are_rejected_even_for_valid_audio(mime):
     with pytest.raises(AppError) as e:
         validate_upload(make_wav(0.1), mime, MB)
@@ -243,3 +243,32 @@ def test_diagnostic_detail_is_short_and_has_no_file_system_paths():
     assert "<path>" in detail and "blocked" in detail          # the cause stays readable
     assert len(detail) <= len("ImportError: ") + 200
     assert "\n" not in detail
+
+
+# -- MP4 / M4A (Safari and iOS record this; the frontend sends it with a .mp4 name) -----------------
+def test_mp4_is_recognised_by_its_header_not_its_name_or_type():
+    data = make_mp4(0.3)
+    assert detect_format(data) == "mp4"
+    assert validate_upload(data, "audio/mp4", MB) == "mp4" and validate_upload(data, None, MB) == "mp4"
+
+
+def test_mp4_aac_decodes_to_16khz_mono_float32():
+    a = decode_audio_bytes(make_mp4(1.0), 10)
+    assert a.dtype == np.float32 and a.ndim == 1 and abs(a.size - SAMPLE_RATE) <= 1500
+    assert 0.15 < rms(a) < 0.27
+
+
+@pytest.mark.parametrize("cut", [30, 200, 0.5])
+def test_truncated_or_garbled_mp4_is_a_clean_400_not_a_crash(cut):
+    data = make_mp4(0.5)
+    broken = data[:int(len(data) * cut)] if isinstance(cut, float) else data[:cut]
+    with pytest.raises(AppError) as e:
+        decode_audio_bytes(broken, 10)
+    assert code(e.value) == (400, "BAD_INPUT")
+
+
+def test_the_container_is_chosen_by_the_header_so_a_mislabelled_stream_is_not_probed_as_something_else():
+    """RIFF/WAVE header, but the body is not WAV: FFmpeg must not fall back to another demuxer."""
+    with pytest.raises(AppError) as e:
+        decode_audio_bytes(b"RIFF\x00\x00\x00\x00WAVE" + make_mp4(0.2), 10)
+    assert code(e.value) == (400, "BAD_INPUT")

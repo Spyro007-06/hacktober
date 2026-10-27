@@ -4,6 +4,8 @@ import subprocess
 from datetime import date, timedelta
 from types import SimpleNamespace
 
+import httpx
+from pydantic import SecretStr
 import pytest
 from fastapi.testclient import TestClient
 
@@ -26,15 +28,67 @@ def test_switching_to_an_unconfigured_mode_is_503_and_changes_nothing(client):
     assert client.get("/api/health").json()["model_mode"] == "online"
 
 
-def test_switching_to_a_configured_mode_changes_health_and_the_provider_used(settings):
+def ollama(handler):
+    return httpx.MockTransport(handler)
+
+
+def tags(*names):
+    return lambda request: httpx.Response(200, json={"models": [{"name": n} for n in names]})
+
+
+def offline_client(settings, handler):
     s = settings.model_copy(update={"ollama_model": "gemma4:e2b"})
-    with TestClient(create_app(s)) as c:
+    c = TestClient(create_app(s))
+    c.__enter__()
+    c.app.state.http_transport = ollama(handler)
+    return c
+
+
+def test_switching_offline_checks_that_ollama_runs_and_has_the_model(settings):
+    c = offline_client(settings, tags("gemma4:e2b"))
+    try:
         r = c.put("/api/config/mode", json={"mode": "offline"})
         assert r.status_code == 200
         assert r.json() == {"status": "ok", "model_mode": "offline", "model": "gemma4:e2b"}
         assert c.get("/api/health").json()["model_mode"] == "offline"
         assert c.app.state.settings.model_mode == "offline"
-    assert NETWORK_ATTEMPTS == []              # switching builds a provider but calls nobody
+    finally:
+        c.__exit__(None, None, None)
+    assert NETWORK_ATTEMPTS == []
+
+
+def test_switching_offline_when_ollama_is_not_running_is_503_and_reverts(settings):
+    def down(request):
+        raise httpx.ConnectError("refused")
+
+    c = offline_client(settings, down)
+    try:
+        r = c.put("/api/config/mode", json={"mode": "offline"})
+        assert r.status_code == 503 and code(r) == "MODEL_UNAVAILABLE"
+        assert c.get("/api/health").json()["model_mode"] == "online"
+    finally:
+        c.__exit__(None, None, None)
+
+
+def test_switching_offline_when_the_model_is_not_installed_is_503(settings):
+    c = offline_client(settings, tags("llama3:8b"))
+    try:
+        r = c.put("/api/config/mode", json={"mode": "offline"})
+        assert r.status_code == 503 and "not installed" in r.json()["error"]["message"]
+        assert c.app.state.settings.model_mode == "online"
+    finally:
+        c.__exit__(None, None, None)
+
+
+def test_switching_online_makes_no_network_call(settings):
+    s = settings.model_copy(update={"model_mode": "offline", "ollama_model": "m",
+                                    "gemini_api_key": SecretStr("k"), "gemini_model": "gemma-4-31b-it"})
+    with TestClient(create_app(s)) as c:
+        calls = []
+        c.app.state.http_transport = httpx.MockTransport(lambda r: calls.append(r) or httpx.Response(500))
+        r = c.put("/api/config/mode", json={"mode": "online"})
+        assert r.status_code == 200 and r.json()["model_mode"] == "online" and calls == []
+    assert NETWORK_ATTEMPTS == []
 
 
 @pytest.mark.parametrize("body", [{"mode": "hybrid"}, {}, {"mode": "online", "extra": 1}, {"mode": None}])
@@ -46,9 +100,11 @@ def test_the_switch_is_in_memory_only_and_never_writes_the_env_file(settings, tm
     env = tmp_path / ".env"
     env.write_text("MODEL_MODE=online\n")
     before = env.read_bytes()
-    s = settings.model_copy(update={"ollama_model": "m"})
-    with TestClient(create_app(s)) as c:
-        c.put("/api/config/mode", json={"mode": "offline"})
+    c = offline_client(settings, tags("gemma4:e2b"))
+    try:
+        assert c.put("/api/config/mode", json={"mode": "offline"}).status_code == 200
+    finally:
+        c.__exit__(None, None, None)
     assert env.read_bytes() == before
 
 

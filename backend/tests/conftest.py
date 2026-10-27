@@ -142,6 +142,27 @@ def make_wav(seconds=1.0, rate=44100, channels=1, freq=440.0, amp=0.3, sampwidth
     return buf.getvalue()
 
 
+def make_mp4(seconds=1.0, freq=440.0, rate=44100) -> bytes:
+    """Synthetic MP4/AAC (mono) encoded in memory with PyAV: what Safari's MediaRecorder makes."""
+    import av
+
+    buf = io.BytesIO()
+    out = av.open(buf, mode="w", format="mp4")
+    stream = out.add_stream("aac", rate=rate)
+    stream.layout = "mono"
+    n = (int(seconds * rate) // 1024) * 1024
+    pcm = (0.3 * np.sin(2 * np.pi * freq * (np.arange(n) / rate))).astype("float32")
+    for i in range(0, n, 1024):
+        frame = av.AudioFrame.from_ndarray(pcm[i:i + 1024].reshape(1, -1), format="fltp", layout="mono")
+        frame.sample_rate = rate
+        for pkt in stream.encode(frame):
+            out.mux(pkt)
+    for pkt in stream.encode(None):
+        out.mux(pkt)
+    out.close()
+    return buf.getvalue()
+
+
 def make_webm(seconds=1.0, freq=440.0) -> bytes:
     """Synthetic WebM/Opus (mono, 48 kHz) encoded in memory with PyAV."""
     import av

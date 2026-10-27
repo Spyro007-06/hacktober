@@ -82,6 +82,7 @@ def list_complaints(db: Database, today: date) -> list[ComplaintListItem]:
             days_left=(c.due_on - today).days, due_date_verified=verified[c.draft_id],
             status=c.effective_status(today),
             parent_complaint_id=c.parent_complaint_id, escalation_level=c.escalation_level))
+    items.sort(key=lambda i: (i.status != "overdue", i.days_left))  # overdue first, then soonest due
     return items
 
 

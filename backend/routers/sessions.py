@@ -5,13 +5,13 @@ from datetime import date
 from typing import Callable, Literal, Optional
 
 from fastapi import APIRouter, Depends, File, Form, UploadFile
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from backend.config import Settings
 from backend.db import Database, new_id
 from backend.deps import get_db, get_provider_factory, get_rules, get_settings_dep
 from backend.errors import bad_input, not_found
-from backend.models import Session, SessionResponse
+from backend.models import Session, SessionDetail, SessionResponse
 from backend.services.extraction import extract
 from backend.services.llm import ImagePart, LLMProvider
 from backend.services.routing import RulesConfig
@@ -29,7 +29,15 @@ ANSWER_KEYS = {"location_text", "location", "area", "duration", "photo_mismatch"
 
 
 class AnswersBody(BaseModel):
-    answers: dict[str, str] = Field(min_length=1, max_length=10)
+    """Body of POST /sessions/{id}/answers: the frontend contract is
+    {"answers": {...}, "confirm_photo_mismatch": bool}. `answers` may be empty (the citizen
+    skipped the question: that still counts as a round) and the PRD's answer key
+    photo_mismatch="confirm" is accepted as the same confirmation."""
+
+    model_config = ConfigDict(extra="forbid")  # a misspelt field is a 400, not silently ignored
+
+    answers: dict[str, str] = Field(max_length=10)  # required, but may be empty
+    confirm_photo_mismatch: bool = False
 
 
 def _clean_answers(raw: dict[str, str]) -> dict[str, str]:
@@ -120,15 +128,24 @@ async def answer_session(
     if session.status not in ("needs_info", "photo_mismatch"):
         raise bad_input("This session is not waiting for answers.")
     new = _clean_answers(body.answers)
+    confirming = body.confirm_photo_mismatch or "photo_mismatch" in new
+    if body.confirm_photo_mismatch:
+        new["photo_mismatch"] = "confirm"
 
     blobs = [resolve_photo(settings.uploads_dir, p).read_bytes() for p in session.photo_paths]
     merged = {**session.answers, **new}
-    # A round is a set of follow-up answers; confirming the photo alone is not one.
-    used_round = any(k != "photo_mismatch" for k in new)
+    # A round is a set of follow-up answers, or a skipped question (empty answers);
+    # confirming the photo alone is not one.
+    used_round = any(k != "photo_mismatch" for k in new) or not confirming
 
-    provider = make_provider()
-    extraction = await extract(provider, text=session.transcript, language=session.language,
-                               images=_model_images(blobs), answers=merged)
+    if new:
+        provider = make_provider()
+        extraction = await extract(provider, text=session.transcript, language=session.language,
+                                   images=_model_images(blobs), answers=merged)
+    else:  # a skipped question: nothing new to extract, so no model call; the round still counts
+        extraction = session.extraction
+        if extraction is None:
+            raise bad_input("This session has no analysis to continue.")
 
     updated = session.model_copy(update={
         "answers": merged,
@@ -140,9 +157,11 @@ async def answer_session(
     return to_response(updated, rules)
 
 
-@router.get("/{session_id}", response_model=Session)
-def get_session(session_id: str, db: Database = Depends(get_db)) -> Session:
+@router.get("/{session_id}", response_model=SessionDetail)
+def get_session(session_id: str, db: Database = Depends(get_db),
+                rules: RulesConfig = Depends(get_rules)) -> SessionDetail:
     session = db.get_session(session_id)
     if session is None:
         raise not_found("Session")
-    return session
+    return SessionDetail(**session.model_dump(), session_id=session.id,
+                         notice=to_response(session, rules).notice)
