@@ -1,9 +1,11 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import * as api from '../api/client'
+import { ApiError } from '../api/errors'
 
 // Only the session id and step are persisted (sessionStorage), never text, photos or personal details.
 const STORAGE_KEY = 'kural.session'
 export const MAX_PHOTOS = 3
+const SILENT_PEAK = 0.02 // a recording quieter than this never picked up a voice
 
 // Errors where retrying the same request cannot help.
 const NOT_RETRYABLE = new Set(['BAD_INPUT', 'NOT_FOUND', 'SESSION_NOT_READY', 'NO_DEPARTMENT'])
@@ -125,8 +127,14 @@ export function ComplaintProvider({ children }) {
   )
 
   const addClip = useCallback(
-    (blob, seconds) => {
-      const clip = { id: nextId++, blob, url: URL.createObjectURL(blob), seconds, status: 'transcribing', error: null }
+    (blob, seconds, peak) => {
+      const base = { id: nextId++, blob, url: URL.createObjectURL(blob), seconds }
+      if (peak !== undefined && peak < SILENT_PEAK) {
+        // The microphone delivered silence: say so now instead of uploading it and getting "no speech" back.
+        update((s) => ({ clips: [...s.clips, { ...base, status: 'error', error: new ApiError('NO_SOUND') }] }))
+        return
+      }
+      const clip = { ...base, status: 'transcribing', error: null }
       update((s) => ({ clips: [...s.clips, clip] }))
       transcribeClip(clip)
     },
