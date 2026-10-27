@@ -1,0 +1,133 @@
+{
+  "_meta": {
+    "verified": false,
+    "note": "ALL ENTRIES ARE DEMO PLACEHOLDERS. Names, addresses, submission channels and response_days are NOT official and must be replaced with verified data before real use. Due dates must not be treated as official while verified=false."
+  },
+  "departments": [
+    {
+      "id": "demo-local-road",
+      "name": "[DEMO] Local body - Roads section",
+      "address": "DEMO PLACEHOLDER - not a verified government record",
+      "submit_via": "DEMO PLACEHOLDER - not a verified government record",
+      "response_days": 30,
+      "routes": [
+        "local_body",
+        "rti"
+      ],
+      "categories": [
+        "road"
+      ],
+      "areas": [
+        "*"
+      ],
+      "verified": false
+    },
+    {
+      "id": "demo-local-streetlight",
+      "name": "[DEMO] Local body - Street Lighting section",
+      "address": "DEMO PLACEHOLDER - not a verified government record",
+      "submit_via": "DEMO PLACEHOLDER - not a verified government record",
+      "response_days": 30,
+      "routes": [
+        "local_body",
+        "rti"
+      ],
+      "categories": [
+        "streetlight"
+      ],
+      "areas": [
+        "*"
+      ],
+      "verified": false
+    },
+    {
+      "id": "demo-local-garbage",
+      "name": "[DEMO] Local body - Solid Waste section",
+      "address": "DEMO PLACEHOLDER - not a verified government record",
+      "submit_via": "DEMO PLACEHOLDER - not a verified government record",
+      "response_days": 30,
+      "routes": [
+        "local_body",
+        "rti"
+      ],
+      "categories": [
+        "garbage"
+      ],
+      "areas": [
+        "*"
+      ],
+      "verified": false
+    },
+    {
+      "id": "demo-local-water",
+      "name": "[DEMO] Local body - Water Supply section",
+      "address": "DEMO PLACEHOLDER - not a verified government record",
+      "submit_via": "DEMO PLACEHOLDER - not a verified government record",
+      "response_days": 30,
+      "routes": [
+        "local_body",
+        "rti"
+      ],
+      "categories": [
+        "water"
+      ],
+      "areas": [
+        "*"
+      ],
+      "verified": false
+    },
+    {
+      "id": "demo-local-drainage",
+      "name": "[DEMO] Local body - Drainage section",
+      "address": "DEMO PLACEHOLDER - not a verified government record",
+      "submit_via": "DEMO PLACEHOLDER - not a verified government record",
+      "response_days": 30,
+      "routes": [
+        "local_body",
+        "rti"
+      ],
+      "categories": [
+        "drainage"
+      ],
+      "areas": [
+        "*"
+      ],
+      "verified": false
+    },
+    {
+      "id": "demo-local-other_civic",
+      "name": "[DEMO] Local body - General Civic Issues section",
+      "address": "DEMO PLACEHOLDER - not a verified government record",
+      "submit_via": "DEMO PLACEHOLDER - not a verified government record",
+      "response_days": 30,
+      "routes": [
+        "local_body",
+        "rti"
+      ],
+      "categories": [
+        "other_civic"
+      ],
+      "areas": [
+        "*"
+      ],
+      "verified": false
+    },
+    {
+      "id": "demo-cm-helpline",
+      "name": "[DEMO] CM Helpline",
+      "address": "DEMO PLACEHOLDER - not a verified government record",
+      "submit_via": "DEMO PLACEHOLDER - not a verified government record",
+      "response_days": 30,
+      "routes": [
+        "cm_helpline"
+      ],
+      "categories": [
+        "*"
+      ],
+      "areas": [
+        "*"
+      ],
+      "verified": false
+    }
+  ]
+}

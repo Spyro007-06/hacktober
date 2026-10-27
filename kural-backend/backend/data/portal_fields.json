@@ -1,0 +1,14 @@
+{
+  "verified": false,
+  "note": "PLACEHOLDER. The real CM Helpline form labels were never recorded (PRD p.4 'hour 0'). The two labels below are the examples printed in the PRD (p.11) and are NOT confirmed against the live form. The PRD defines no portal fields for local_body or rti, so those routes have none. Replace with the recorded labels and set verified to true.",
+  "routes": {
+    "cm_helpline": {
+      "fields": [
+        {"label": "Grievance details", "source": "summary_bilingual"},
+        {"label": "Communication address", "source": "complainant_address"}
+      ]
+    },
+    "local_body": {"fields": []},
+    "rti": {"fields": []}
+  }
+}

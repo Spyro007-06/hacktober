@@ -1,0 +1,17 @@
+{# Photo evidence page, used only when building the PDF. Tamil wording needs native-speaker review. #}
+{% if evidence_photos %}
+<section class="evidence">
+  <h2>Photo evidence / புகைப்பட ஆதாரம்</h2>
+  <p class="muted">Supplied by the complainant. / புகார் அளிப்பவர் வழங்கியவை.</p>
+  {% for p in evidence_photos %}
+  <figure>
+    {% if p.data_uri %}
+    <img src="{{ p.data_uri }}" alt="Photo {{ p.n }}">
+    {% else %}
+    <p class="muted">Photo unavailable / புகைப்படம் கிடைக்கவில்லை</p>
+    {% endif %}
+    <figcaption>Photo {{ p.n }} of {{ p.total }} / புகைப்படம் {{ p.n }} / {{ p.total }}</figcaption>
+  </figure>
+  {% endfor %}
+</section>
+{% endif %}

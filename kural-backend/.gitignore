@@ -1,0 +1,67 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Environments and caches
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Private runtime data: databases, uploads, audio, generated documents.
+# Patterns are repo-wide because DATA_DIR can point anywhere.
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+*.sqlite3-*
+uploads/
+*.wav
+*.webm
+*.mp3
+*.m4a
+*.ogg
+generated/
+kural_local_body_*.pdf
+kural_cm_helpline_*.pdf
+kural_rti_*.pdf
+backend/data/wards.geojson
+
+# More audio formats
+*.flac
+*.opus
+*.aac
+*.wma
+*.amr
+
+# Credentials and keys, logs
+*.pem
+*.key
+*.pfx
+*.p12
+*.log
+
+# Your own test recordings and their reference transcripts and benchmark reports (private)
+audio_samples/
+Audio sample/
+
+# Model weights (STT/LLM): large, downloaded separately, never committed
+*.gguf
+*.onnx
+*.safetensors
+*.ct2
+*.bin
+backend/data/models/
+whisper/
+
+# Generated documents anywhere; the PRD in docs/ stays tracked
+*.pdf
+!docs/*.pdf
+
+# Temporary test data and scratch scripts
+kural_photo_*/
+kural_live_*/
+kural_flow_*/
+photo_test_*/
+tmp_*.py

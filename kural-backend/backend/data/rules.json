@@ -1,0 +1,70 @@
+{
+  "_meta": {
+    "note": "Wording below is Kural's own explanatory text, not legal wording. Tamil strings are machine-drafted and need review by a native Tamil speaker before the demo."
+  },
+  "spans_departments_categories": [],
+  "rules": {
+    "R1": {
+      "route": "rti",
+      "reason_en": "You asked for records or information, so this is prepared as an RTI application.",
+      "reason_ta": "நீங்கள் தகவல் அல்லது ஆவணங்களைக் கேட்டுள்ளதால், இது தகவல் அறியும் உரிமை (RTI) விண்ணப்பமாகத் தயாராகிறது."
+    },
+    "R2": {
+      "route": "local_body",
+      "reason_en": "This is a civic problem with no earlier complaint, so it goes to your local body (corporation or municipality).",
+      "reason_ta": "இது முந்தைய புகார் இல்லாத குடிமைப் பிரச்சினை என்பதால், உங்கள் உள்ளாட்சி அமைப்புக்கு (மாநகராட்சி அல்லது நகராட்சி) செல்கிறது."
+    },
+    "R3": {
+      "route": "cm_helpline",
+      "reason_en": "Your earlier complaint was ignored, or the problem involves more than one department, so this goes to the CM Helpline.",
+      "reason_ta": "உங்கள் முந்தைய புகார் கவனிக்கப்படவில்லை அல்லது பிரச்சினை பல துறைகளைச் சார்ந்தது என்பதால், இது முதலமைச்சர் உதவி மையத்துக்குச் செல்கிறது."
+    },
+    "R4": {
+      "route": "rti",
+      "reason_en": "Your CM Helpline grievance was ignored even after escalation, so an RTI asking for the action taken is prepared.",
+      "reason_ta": "முதலமைச்சர் உதவி மையப் புகார் மேல்முறையீட்டிற்குப் பிறகும் கவனிக்கப்படவில்லை என்பதால், எடுக்கப்பட்ட நடவடிக்கை குறித்த RTI விண்ணப்பம் தயாராகிறது."
+    }
+  },
+  "follow_up_questions": {
+    "location_text": {
+      "question_en": "Which street is this on?",
+      "question_ta": "இது எந்தத் தெருவில் உள்ளது?"
+    }
+  },
+  "next_steps": {
+    "routes": {
+      "local_body": {
+        "en": "Submit this complaint to your local body (corporation or municipality).",
+        "ta": "இந்தப் புகாரை உங்கள் உள்ளாட்சி அமைப்பிடம் (மாநகராட்சி அல்லது நகராட்சி) சமர்ப்பிக்கவும்."
+      },
+      "cm_helpline": {
+        "en": "Submit this grievance through the CM Helpline.",
+        "ta": "இந்தப் புகாரை முதலமைச்சர் உதவி மையம் வழியாகச் சமர்ப்பிக்கவும்."
+      },
+      "rti": {
+        "en": "File this RTI application with the department named in this document.",
+        "ta": "இந்த RTI விண்ணப்பத்தை இந்த ஆவணத்தில் குறிப்பிடப்பட்டுள்ள துறையிடம் தாக்கல் செய்யவும்."
+      }
+    },
+    "submit_via": {
+      "en": "Where to submit: {submit_via}.",
+      "ta": "சமர்ப்பிக்கும் இடம்: {submit_via}."
+    },
+    "response_verified": {
+      "en": "You should receive a reply within {response_days} days.",
+      "ta": "{response_days} நாட்களுக்குள் பதில் கிடைக்க வேண்டும்."
+    },
+    "response_unverified": {
+      "en": "The response time for this department has not been verified.",
+      "ta": "இந்தத் துறையின் பதில் அளிக்கும் காலம் சரிபார்க்கப்படவில்லை."
+    },
+    "demo_notice": {
+      "en": "DEMO DATA: the department details in this document are placeholders and have not been verified. Do not rely on them.",
+      "ta": "டெமோ தரவு: இந்த ஆவணத்திலுள்ள துறை விவரங்கள் மாதிரி விவரங்கள்; அவை சரிபார்க்கப்படவில்லை. இவற்றை நம்ப வேண்டாம்."
+    }
+  },
+  "not_civic_notice": {
+    "en": "Kural does not cover this kind of problem.",
+    "ta": "இந்த வகைப் பிரச்சினையை குரல் (Kural) கையாளாது."
+  }
+}
