@@ -134,6 +134,18 @@ uvicorn backend.main:app --reload --port 8000         # from the repo root
 cd frontend && npm install && npm run dev:real        # proxies /api to :8000
 ```
 
+Spoken next steps (optional; without it the Listen button is hidden and the steps stay as text). Piper is GPL-3.0,
+so it runs as a separate process from its own venv and is not a Kural dependency:
+
+```bash
+python -m venv backend/data/models/tts/piper-venv
+backend/data/models/tts/piper-venv/bin/python -m pip install piper-tts      # Windows: ...\Scripts\python.exe
+# download a Tamil voice (CC-BY-4.0, AI4Bharat Rasa) and an English voice (LJ Speech, public domain) next to it:
+#   tinisoft/piper-ta_IN-rasa_male-medium  ->  ta_IN-rasa_male-medium.onnx (+ .onnx.json)
+#   rhasspy/piper-voices  en/en_US/ljspeech/medium  ->  en_US-ljspeech-medium.onnx (+ .onnx.json)
+# then in .env: TTS_ENGINE=piper, TTS_PIPER_PYTHON=<that python>, TTS_VOICE_TA=<.onnx>, TTS_VOICE_EN=<.onnx>
+```
+
 Tests:
 
 ```bash

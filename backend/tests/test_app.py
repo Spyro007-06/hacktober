@@ -45,7 +45,7 @@ def test_network_guard_also_blocks_httpx2_which_huggingface_hub_uses():
 def test_startup_and_health(client):
     r = client.get("/api/health")
     assert r.status_code == 200
-    assert r.json() == {"status": "ok", "model_mode": "online", "model": "unconfigured"}
+    assert r.json() == {"status": "ok", "model_mode": "online", "model": "unconfigured", "tts": []}
 
 
 def test_health_reports_configured_model(settings):
@@ -58,7 +58,7 @@ def test_health_offline_mode(settings):
     s = settings.model_copy(update={"model_mode": "offline", "ollama_model": "tag"})
     with TestClient(create_app(s)) as c:
         assert c.get("/api/health").json() == {
-            "status": "ok", "model_mode": "offline", "model": "tag"}
+            "status": "ok", "model_mode": "offline", "model": "tag", "tts": []}
 
 
 def test_unknown_route_uses_error_shape(client):

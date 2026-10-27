@@ -40,7 +40,9 @@ Every error has the same body: `{"error": {"code": "...", "message": "..."}}`.
 
 ### `GET /health`
 
-`{"status": "ok", "model_mode": "online" | "offline", "model": "<configured model id>"}`
+`{"status": "ok", "model_mode": "online" | "offline", "model": "<configured model id>", "tts": ["ta", "en"]}`
+
+`tts` lists the languages that have a working voice for `POST /tts` (empty when speech output is not set up). The frontend shows the Listen button only for those languages.
 
 ### `PUT /config/mode`
 
