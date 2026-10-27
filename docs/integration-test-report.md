@@ -53,5 +53,5 @@ banner included.
 - **Tamil quality is unverified.** Tamil speech recognition, the Tamil voice and the fixed Tamil wording were exercised but not judged
   by a native speaker. The test used an English synthetic voice clip because this machine has no Tamil voice.
 - **Browser Back** leaves the app instead of going to the previous step (the wizard does not create history entries).
-- **Department data and portal field labels are demo placeholders**, and the documents say so.
+- **Offices outside Chennai and Coimbatore use a generic addressee**, and the portal field labels are unconfirmed; the documents say so.
 - The text-to-speech engine starts a process per request: the first playback of a paragraph takes 6 to 12 s (audio is then cached).

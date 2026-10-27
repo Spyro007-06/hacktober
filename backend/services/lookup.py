@@ -16,8 +16,9 @@ class DepartmentRecord(Department):
 
     routes: list[Route]
     categories: list[str]  # category names or "*"
-    areas: list[str] = Field(default_factory=lambda: ["*"])  # area names or "*"
-    verified: bool = False
+    areas: list[str] = Field(default_factory=lambda: ["*"])  # area names (any spelling) or "*"
+    verified: bool = False  # name, address and submission channel were checked against an official source
+    response_days_verified: bool = False  # response_days is an official time limit, not an estimate
 
     def to_department(self) -> Department:
         return Department(**self.model_dump(include=set(Department.model_fields)))
@@ -62,6 +63,16 @@ class DepartmentLookup:
             if best is None or score > best[0]:
                 best = (score, r)
         return best[1] if best else None
+
+    def area_in_text(self, *texts: Optional[str]) -> Optional[str]:
+        """The first area name (a city, in Tamil or English) that appears in the given texts, e.g. the
+        complainant's address. Used when no ward is known, so the right city's office is addressed."""
+        haystack = " ".join(t for t in texts if t).casefold()
+        for r in self._records:
+            for a in r.areas:
+                if a != "*" and a.casefold() in haystack:
+                    return a
+        return None
 
     def require(self, route: Route, category: str, area: Optional[str] = None) -> DepartmentRecord:
         found = self.find(route, category, area)

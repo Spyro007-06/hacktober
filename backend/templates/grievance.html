@@ -1,49 +1,29 @@
 {% extends "base.html" %}
-{% from "_macros.html" import v, category_label, route_label %}
-{% block title %}Complaint draft / புகார் வரைவு {{ draft_id }}{% endblock %}
+{% from "_macros.html" import v, route_label, dmy %}
+{% block title %}Complaint letter / புகார் கடிதம் {{ draft_id }}{% endblock %}
 {% block body %}
-<h1>Complaint draft / புகார் வரைவு</h1>
-
-<div class="banner">
-  <p lang="en">Draft prepared with Kural. Review it before submitting. This is not an official government form.</p>
-  <p lang="ta">குரல் (Kural) மூலம் தயாரிக்கப்பட்ட வரைவு. சமர்ப்பிக்கும் முன் சரிபார்க்கவும். இது அதிகாரப்பூர்வ அரசுப் படிவம் அல்ல.</p>
-</div>
 {% if not department_verified %}
 <div class="banner demo">
   <p lang="en">{{ demo_notice.en }}</p>
   <p lang="ta">{{ demo_notice.ta }}</p>
 </div>
 {% endif %}
+{% set kind = "grievance" %}
+{% include "_letter_en.html" %}
+{% include "_letter_ta.html" %}
+
+<section class="annexure">
+<h1>Submission details / சமர்ப்பிப்பு விவரங்கள்</h1>
+<div class="banner">
+  <p lang="en">Draft prepared with Kural. Review it before submitting. This page is not part of the letter, and this is not an official government form.</p>
+  <p lang="ta">குரல் (Kural) மூலம் தயாரிக்கப்பட்ட வரைவு. சமர்ப்பிக்கும் முன் சரிபார்க்கவும். இந்தப் பக்கம் கடிதத்தின் பகுதி அல்ல; இது அதிகாரப்பூர்வ அரசுப் படிவமும் அல்ல.</p>
+</div>
 
 <table>
   <tr><th>Reference / குறிப்பு எண்</th><td>{{ draft_id }}</td></tr>
-  <tr><th>Date prepared / தயாரித்த தேதி</th><td>{{ created_on }}</td></tr>
+  <tr><th>Date prepared / தயாரித்த தேதி</th><td>{{ dmy(created_on) }}</td></tr>
   <tr><th>Submit via / சமர்ப்பிக்கும் வழி</th><td>{{ route_label(route) }}</td></tr>
 </table>
-
-<h2>Department / துறை</h2>
-<div class="box">
-  <p>{{ v(department.name) }}</p>
-  <p>{{ v(department.address) }}</p>
-</div>
-
-<h2>Complainant / புகார் அளிப்பவர்</h2>
-<table>
-  <tr><th>Name / பெயர்</th><td>{{ v(complainant.name) }}</td></tr>
-  <tr><th>Address / முகவரி</th><td>{{ v(complainant.address) }}</td></tr>
-  <tr><th>Phone / தொலைபேசி</th><td>{{ v(complainant.phone) }}</td></tr>
-</table>
-
-<h2>Problem details / பிரச்சினை விவரங்கள்</h2>
-<table>
-  <tr><th>Category / வகை</th><td>{{ category_label(category) }}</td></tr>
-  <tr><th>Location / இடம்</th><td>{{ v(location_text) }}</td></tr>
-  <tr><th>Duration / கால அளவு</th><td>{{ v(duration) }}</td></tr>
-</table>
-<div class="box">
-  <p lang="en">{{ summary_en }}</p>
-  <p lang="ta">{{ summary_ta }}</p>
-</div>
 
 {% if photo_findings %}
 <h2>Photo observations (automated, unverified) / புகைப்படக் குறிப்புகள் (தானியங்கி, சரிபார்க்கப்படாதவை)</h2>
@@ -78,5 +58,6 @@
 {% endfor %}
 </table>
 {% endif %}
+</section>
 {% include "_evidence.html" %}
 {% endblock %}

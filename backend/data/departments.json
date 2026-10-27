@@ -1,122 +1,112 @@
 {
   "_meta": {
     "verified": false,
-    "note": "ALL ENTRIES ARE DEMO PLACEHOLDERS. Names, addresses, submission channels and response_days are NOT official and must be replaced with verified data before real use. Due dates must not be treated as official while verified=false."
+    "note": "Entries marked verified were checked against the official sites of the Greater Chennai Corporation (gccservices.chennaicorporation.gov.in/pgr), the Coimbatore City Municipal Corporation (ccmc.gov.in) and the Mudhalvarin Mugavari (CM Helpline) portal (cmhelpline.tnega.org) in October 2026. response_days is an estimate except where response_days_verified is true (30 days under section 7(1) of the Right to Information Act, 2005). The generic entries are used when no verified office matches the complainant's city; they are marked verified=false and the document asks the citizen to check the office. Add more cities as areas."
   },
   "departments": [
     {
-      "id": "demo-local-road",
-      "name": "[DEMO] Local body - Roads section",
-      "address": "DEMO PLACEHOLDER - not a verified government record",
-      "submit_via": "DEMO PLACEHOLDER - not a verified government record",
+      "id": "gcc-local-body",
+      "name": "The Commissioner, Greater Chennai Corporation",
+      "address": "Ripon Building, EVR Salai, Chennai - 600 003",
+      "submit_via": "the Greater Chennai Corporation complaint portal (gccservices.chennaicorporation.gov.in/pgr), phone 1913, or by post to the address above",
       "response_days": 30,
       "routes": [
-        "local_body",
-        "rti"
+        "local_body"
       ],
       "categories": [
-        "road"
-      ],
-      "areas": [
-        "*"
-      ],
-      "verified": false
-    },
-    {
-      "id": "demo-local-streetlight",
-      "name": "[DEMO] Local body - Street Lighting section",
-      "address": "DEMO PLACEHOLDER - not a verified government record",
-      "submit_via": "DEMO PLACEHOLDER - not a verified government record",
-      "response_days": 30,
-      "routes": [
-        "local_body",
-        "rti"
-      ],
-      "categories": [
-        "streetlight"
-      ],
-      "areas": [
-        "*"
-      ],
-      "verified": false
-    },
-    {
-      "id": "demo-local-garbage",
-      "name": "[DEMO] Local body - Solid Waste section",
-      "address": "DEMO PLACEHOLDER - not a verified government record",
-      "submit_via": "DEMO PLACEHOLDER - not a verified government record",
-      "response_days": 30,
-      "routes": [
-        "local_body",
-        "rti"
-      ],
-      "categories": [
-        "garbage"
-      ],
-      "areas": [
-        "*"
-      ],
-      "verified": false
-    },
-    {
-      "id": "demo-local-water",
-      "name": "[DEMO] Local body - Water Supply section",
-      "address": "DEMO PLACEHOLDER - not a verified government record",
-      "submit_via": "DEMO PLACEHOLDER - not a verified government record",
-      "response_days": 30,
-      "routes": [
-        "local_body",
-        "rti"
-      ],
-      "categories": [
-        "water"
-      ],
-      "areas": [
-        "*"
-      ],
-      "verified": false
-    },
-    {
-      "id": "demo-local-drainage",
-      "name": "[DEMO] Local body - Drainage section",
-      "address": "DEMO PLACEHOLDER - not a verified government record",
-      "submit_via": "DEMO PLACEHOLDER - not a verified government record",
-      "response_days": 30,
-      "routes": [
-        "local_body",
-        "rti"
-      ],
-      "categories": [
-        "drainage"
-      ],
-      "areas": [
-        "*"
-      ],
-      "verified": false
-    },
-    {
-      "id": "demo-local-other_civic",
-      "name": "[DEMO] Local body - General Civic Issues section",
-      "address": "DEMO PLACEHOLDER - not a verified government record",
-      "submit_via": "DEMO PLACEHOLDER - not a verified government record",
-      "response_days": 30,
-      "routes": [
-        "local_body",
-        "rti"
-      ],
-      "categories": [
+        "road",
+        "streetlight",
+        "garbage",
+        "water",
+        "drainage",
         "other_civic"
       ],
       "areas": [
-        "*"
+        "chennai",
+        "சென்னை"
       ],
-      "verified": false
+      "verified": true,
+      "response_days_verified": false
     },
     {
-      "id": "demo-cm-helpline",
-      "name": "[DEMO] CM Helpline",
-      "address": "DEMO PLACEHOLDER - not a verified government record",
-      "submit_via": "DEMO PLACEHOLDER - not a verified government record",
+      "id": "gcc-rti",
+      "name": "The Public Information Officer, Greater Chennai Corporation",
+      "address": "Ripon Building, EVR Salai, Chennai - 600 003",
+      "submit_via": "by post or in person at the address above",
+      "response_days": 30,
+      "routes": [
+        "rti"
+      ],
+      "categories": [
+        "road",
+        "streetlight",
+        "garbage",
+        "water",
+        "drainage",
+        "other_civic"
+      ],
+      "areas": [
+        "chennai",
+        "சென்னை"
+      ],
+      "verified": true,
+      "response_days_verified": true
+    },
+    {
+      "id": "ccmc-local-body",
+      "name": "The Commissioner, Coimbatore City Municipal Corporation",
+      "address": "Town Hall, Coimbatore - 641 001",
+      "submit_via": "by post or in person at the address above, or by email to commr.coimbatore@tn.gov.in",
+      "response_days": 30,
+      "routes": [
+        "local_body"
+      ],
+      "categories": [
+        "road",
+        "streetlight",
+        "garbage",
+        "water",
+        "drainage",
+        "other_civic"
+      ],
+      "areas": [
+        "coimbatore",
+        "கோயம்புத்தூர்",
+        "கோவை"
+      ],
+      "verified": true,
+      "response_days_verified": false
+    },
+    {
+      "id": "ccmc-rti",
+      "name": "The Public Information Officer, Coimbatore City Municipal Corporation",
+      "address": "Town Hall, Coimbatore - 641 001",
+      "submit_via": "by post or in person at the address above",
+      "response_days": 30,
+      "routes": [
+        "rti"
+      ],
+      "categories": [
+        "road",
+        "streetlight",
+        "garbage",
+        "water",
+        "drainage",
+        "other_civic"
+      ],
+      "areas": [
+        "coimbatore",
+        "கோயம்புத்தூர்",
+        "கோவை"
+      ],
+      "verified": true,
+      "response_days_verified": true
+    },
+    {
+      "id": "cm-helpline",
+      "name": "The Special Officer, Mudhalvarin Mugavari Department (CM Helpline)",
+      "address": "Secretariat, Chennai - 600 009",
+      "submit_via": "the CM Helpline portal (cmhelpline.tnega.org), phone 1100 (7 AM to 10 PM), email cmcell@tn.gov.in, or by post to the address above",
       "response_days": 30,
       "routes": [
         "cm_helpline"
@@ -127,7 +117,54 @@
       "areas": [
         "*"
       ],
-      "verified": false
+      "verified": true,
+      "response_days_verified": false
+    },
+    {
+      "id": "local-body-generic",
+      "name": "The Commissioner / Executive Officer of your local body",
+      "address": "Office of the Corporation, Municipality or Town Panchayat for your area",
+      "submit_via": "the office of your local body or its complaint channel",
+      "response_days": 30,
+      "routes": [
+        "local_body"
+      ],
+      "categories": [
+        "road",
+        "streetlight",
+        "garbage",
+        "water",
+        "drainage",
+        "other_civic"
+      ],
+      "areas": [
+        "*"
+      ],
+      "verified": false,
+      "response_days_verified": false
+    },
+    {
+      "id": "rti-generic",
+      "name": "The Public Information Officer of the concerned local body",
+      "address": "Office of the Corporation, Municipality or Town Panchayat for your area",
+      "submit_via": "by post or in person at the office above",
+      "response_days": 30,
+      "routes": [
+        "rti"
+      ],
+      "categories": [
+        "road",
+        "streetlight",
+        "garbage",
+        "water",
+        "drainage",
+        "other_civic"
+      ],
+      "areas": [
+        "*"
+      ],
+      "verified": false,
+      "response_days_verified": true
     }
   ]
 }

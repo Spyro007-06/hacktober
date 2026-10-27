@@ -20,3 +20,58 @@
 {%- elif r == "rti" %}RTI (information request) / RTI (தகவல் கோரிக்கை)
 {%- else %}Local body / உள்ளாட்சி அமைப்பு{% endif %}
 {%- endmacro %}
+
+{# One-line subjects for the letter. Fixed wording chosen by category, never written by the model. #}
+{% macro subject_en(kind, c, loc) -%}
+{% set place = loc or "my locality" %}
+{% set topics = {
+  "road": "road repair works",
+  "streetlight": "streetlight maintenance",
+  "garbage": "solid waste management",
+  "water": "the drinking water supply",
+  "drainage": "drainage works",
+  "other_civic": "civic works"
+} %}
+{% set topic = topics.get(c, "civic works") %}
+{% if kind == "rti" -%}
+Request for information under the Right to Information Act, 2005, regarding {{ topic }} at {{ place }}
+{%- else -%}
+{% set verbs = {
+  "road": "Request to repair the damaged road",
+  "streetlight": "Request to repair the non-functioning streetlight",
+  "garbage": "Request to clear the uncollected garbage",
+  "water": "Request to resolve the drinking water supply problem",
+  "drainage": "Request to clear the blocked drainage",
+  "other_civic": "Request for action on a civic problem"
+} %}
+{{ verbs.get(c, "Request for action on a civic problem") }} at {{ place }}
+{%- endif %}
+{%- endmacro %}
+
+{% macro subject_ta(kind, c, loc) -%}
+{% set place = loc or "எங்கள் பகுதி" %}
+{% if kind == "rti" -%}
+{% set topics = {
+  "road": "சாலை",
+  "streetlight": "தெருவிளக்கு",
+  "garbage": "குப்பை",
+  "water": "குடிநீர் வழங்கல்",
+  "drainage": "வடிகால்",
+  "other_civic": "குடிமைப் பிரச்சினை"
+} %}
+{{ place }} பகுதியின் {{ topics.get(c, "குடிமைப் பிரச்சினை") }} தொடர்பாக, தகவல் அறியும் உரிமைச் சட்டம், 2005-இன் கீழ் தகவல் கோருதல்
+{%- else -%}
+{% set verbs = {
+  "road": "சேதமடைந்த சாலையைச் சீரமைக்கக் கோருதல்",
+  "streetlight": "எரியாத தெருவிளக்கைச் சரிசெய்யக் கோருதல்",
+  "garbage": "அகற்றப்படாத குப்பையை அகற்றக் கோருதல்",
+  "water": "குடிநீர் வழங்கல் பிரச்சினையைத் தீர்க்கக் கோருதல்",
+  "drainage": "அடைப்பு ஏற்பட்ட வடிகாலைச் சரிசெய்யக் கோருதல்",
+  "other_civic": "குடிமைப் பிரச்சினையில் நடவடிக்கை எடுக்கக் கோருதல்"
+} %}
+{{ place }} பகுதியில் {{ verbs.get(c, "குடிமைப் பிரச்சினையில் நடவடிக்கை எடுக்கக் கோருதல்") }}
+{%- endif %}
+{%- endmacro %}
+
+{# dd-mm-yyyy from an ISO date #}
+{% macro dmy(iso) -%}{{ iso[8:10] }}-{{ iso[5:7] }}-{{ iso[0:4] }}{%- endmacro %}

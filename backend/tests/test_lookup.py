@@ -23,7 +23,7 @@ def test_every_category_has_local_body_and_rti_department():
 
 
 def test_cm_helpline_wildcard_category():
-    assert LOOKUP.find("cm_helpline", "water").id == "demo-cm-helpline"
+    assert LOOKUP.find("cm_helpline", "water").id == "cm-helpline"
 
 
 def test_no_match_raises_no_department():
@@ -37,14 +37,36 @@ def test_returns_plain_department_model():
     assert type(d) is Department and d.response_days == 30
 
 
-def test_all_shipped_entries_are_marked_unverified_placeholders():
+def test_only_the_generic_fallbacks_are_unverified():
     assert json.loads(PATH.read_text(encoding="utf-8"))["_meta"]["verified"] is False
+    assert sorted(LOOKUP.unverified_ids()) == ["local-body-generic", "rti-generic"]
     for r in LOOKUP._records:
-        assert r.verified is False and "DEMO" in r.name
+        assert "DEMO" not in r.name and "PLACEHOLDER" not in r.address
 
 
-def test_unverified_ids_lists_every_placeholder():
-    assert len(LOOKUP.unverified_ids()) == len(LOOKUP._records) == 7
+def test_rti_response_time_is_the_statutory_30_days_and_nothing_else_is_claimed_official():
+    for r in LOOKUP._records:
+        assert r.response_days_verified is (r.routes == ["rti"])
+        if r.response_days_verified:
+            assert r.response_days == 30
+
+
+@pytest.mark.parametrize("text,expected", [
+    ("14 Gandhi Street, Anna Nagar, Chennai 600040", "chennai"),
+    ("5 Market Road, சென்னை", "சென்னை"),
+    ("RS Puram, Coimbatore", "coimbatore"),
+    ("Gandhipuram, கோவை", "கோவை"),
+    ("12 Temple Road, Madurai", None),
+])
+def test_city_is_found_in_the_address(text, expected):
+    assert LOOKUP.area_in_text(text) == expected
+
+
+def test_city_in_the_address_selects_that_citys_office():
+    assert LOOKUP.find("local_body", "road", LOOKUP.area_in_text("Anna Nagar, Chennai")).id == "gcc-local-body"
+    assert LOOKUP.find("local_body", "road", LOOKUP.area_in_text("RS Puram, Coimbatore")).id == "ccmc-local-body"
+    assert LOOKUP.find("rti", "water", LOOKUP.area_in_text("RS Puram, Coimbatore")).id == "ccmc-rti"
+    assert LOOKUP.find("local_body", "road", LOOKUP.area_in_text("Temple Road, Madurai")).id == "local-body-generic"
 
 
 def test_area_specific_entry_beats_wildcard():

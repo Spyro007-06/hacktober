@@ -55,7 +55,7 @@ export default function DraftPage({ focusHeading }) {
                 <span className="font-semibold">{t('draft.submitVia')}:</span> {dept.submit_via}
               </p>
             )}
-            {dept.response_days && <p className="text-muted">{t('draft.replyIn', { n: dept.response_days })}</p>}
+            {dept.response_days && draft.response_days_verified !== false && <p className="text-muted">{t('draft.replyIn', { n: dept.response_days })}</p>}
           </div>
         </section>
       )}

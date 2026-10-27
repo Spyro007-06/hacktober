@@ -108,11 +108,10 @@ def test_unknown_draft_is_404(client):
 
 def test_pdf_has_the_bilingual_content_and_unverified_warnings(client):
     _, d = make(client, summary_ta=TAMIL, summary_en="Light near the library is dead.")
-    t = text(reader(get_pdf(client, d["draft_id"]).content))
-    for expected in ("Complaint draft", "Complainant", "R. Priya", "14 Gandhi Street",
-                     "Light near the library is dead.", "DEMO DATA", "has not been verified"):
+    t = " ".join(text(reader(get_pdf(client, d["draft_id"]).content)).split())  # lines wrap in the PDF
+    for expected in ("Respected Sir / Madam,", "Yours faithfully,", "R. Priya", "14 Gandhi Street",
+                     "Light near the library is dead.", "could not be confirmed", "has not been verified"):
         assert expected in t, expected
-    assert "புகார்" in t
     assert sum(1 for ch in t if "\u0b80" <= ch <= "\u0bff") > 100  # a lot of Tamil, not tofu/blank
     assert "within" not in t  # no response time from unverified data
 
@@ -122,13 +121,13 @@ def test_verified_department_pdf_states_its_response_days_and_has_no_demo_banner
     with TestClient(create_app(settings)) as c:
         _, d = make(c)
         t = text(reader(get_pdf(c, d["draft_id"]).content))
-    assert "within 7 days" in t and "DEMO DATA" not in t
+    assert "within 7 days" in t and "could not be confirmed" not in t
 
 
 def test_rti_pdf_lists_the_requested_information(client):
     _, d = make(client, rule_id="R1", wants_records=True, requested_info=["Road repair budget"])
-    t = text(reader(get_pdf(client, d["draft_id"]).content))
-    assert "Information requested" in t and "Road repair budget" in t
+    t = " ".join(text(reader(get_pdf(client, d["draft_id"]).content)).split())
+    assert "following information" in t and "Road repair budget" in t
 
 
 def test_pdf_reflects_edits_made_through_patch(client):

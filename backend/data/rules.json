@@ -59,8 +59,8 @@
       "ta": "இந்தத் துறையின் பதில் அளிக்கும் காலம் சரிபார்க்கப்படவில்லை."
     },
     "demo_notice": {
-      "en": "DEMO DATA: the department details in this document are placeholders and have not been verified. Do not rely on them.",
-      "ta": "டெமோ தரவு: இந்த ஆவணத்திலுள்ள துறை விவரங்கள் மாதிரி விவரங்கள்; அவை சரிபார்க்கப்படவில்லை. இவற்றை நம்ப வேண்டாம்."
+      "en": "NOTE: the office name and address above could not be confirmed for your area. Check them against your local office before you submit.",
+      "ta": "குறிப்பு: மேலே உள்ள அலுவலகத்தின் பெயரும் முகவரியும் உங்கள் பகுதிக்கு உறுதிசெய்யப்படவில்லை. சமர்ப்பிக்கும் முன் உங்கள் உள்ளூர் அலுவலகத்துடன் சரிபார்க்கவும்."
     }
   },
   "escalation": {

@@ -332,7 +332,7 @@ def test_an_overdue_local_body_complaint_escalates_to_the_cm_helpline_level_1(cl
     assert body["decision"]["rule_id"] == "R3" and body["route"] == "cm_helpline"
     assert body["decision"]["escalation_level"] == 1
     assert "Gandhi Street" in body["html"] and cid in body["html"]                # the stored facts, not invented ones
-    assert body["department"]["id"] == "demo-cm-helpline"
+    assert body["department"]["id"] == "cm-helpline"
     draft = client.app.state.db.get_draft(body["draft_id"])
     assert draft.parent_complaint_id == cid
     assert client.app.state.db.get_complaint(cid).status != "escalated"           # only filing the draft escalates

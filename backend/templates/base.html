@@ -20,6 +20,19 @@
   ul { margin: 1.5mm 0 1.5mm 6mm; padding: 0; }
   h2 { break-after: avoid; }
   .box, .banner, tr { break-inside: avoid; }
+  .letter { break-after: page; font-size: 11.5pt; line-height: 1.65; }
+  .letter table.meta { margin-bottom: 6mm; }
+  .letter table.meta td { border: none; padding: 0; vertical-align: top; }
+  .letter .from { width: 63%; }
+  .letter .date { width: 37%; text-align: right; }
+  .letter .label { font-size: 9.5pt; color: #555; margin: 0; }
+  .letter .to { margin: 0 0 6mm; }
+  .letter .subject { margin: 4mm 0 5mm; }
+  .letter[lang=en] p.body { text-align: justify; }
+  .letter ol { margin: 1.5mm 0 3mm 7mm; padding: 0; }
+  .sign-line { width: 55mm; border-top: 0.3mm solid #111; margin-top: 16mm; }
+  @media screen { .letter { padding-bottom: 8mm; margin-bottom: 8mm; border-bottom: 0.3mm dashed #aaa; } }
+  .annexure h1 { font-size: 14pt; }
   .evidence { break-before: page; }
   figure { margin: 0 0 4mm; text-align: center; break-inside: avoid; }
   figure img { max-width: 100%; max-height: 62mm; object-fit: contain; }

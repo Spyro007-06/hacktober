@@ -162,7 +162,8 @@ cd frontend && npm run check         # translation parity, colour contrast, mock
 | Frontend and backend contract | Compared endpoint by endpoint; the backend has a contract test (`test_api_contract.py`) |
 | Gemma 4 through the Gemini API | Wired up, **not yet verified** for Tamil and photos; use offline mode for the demo |
 | Tamil speech accuracy | **Unverified** until tested on reviewed recordings (`scripts/stt_benchmark.py`) |
-| Department data and CM Helpline form labels | **Demo placeholders**, marked as such in the documents; replace with the recorded real ones |
+| Department offices | Verified for the Greater Chennai Corporation, the Coimbatore City Municipal Corporation and the CM Helpline (official sites, Oct 2026); other cities use a generic addressee that the document flags. Response times are not official except the RTI Act's 30 days |
+| CM Helpline portal form labels | **Unconfirmed placeholders**, marked as such in the documents |
 | Tamil wording of fixed text | Needs native-speaker review |
 | Not built | GPS ward detection (P1), submitting to government portals (out of scope), accounts, other languages |
 
