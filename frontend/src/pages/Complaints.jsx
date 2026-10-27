@@ -49,7 +49,7 @@ export default function Complaints() {
       const draft = await escalateComplaint(id)
       if (!alive.current) return
       openDraft(draft)
-      navigate('/')
+      navigate('/new')
     } catch (error) {
       if (alive.current) setEscalateError({ error, id })
     } finally {
@@ -71,7 +71,7 @@ export default function Complaints() {
           title={t('complaints.empty')}
           hint={t('complaints.emptyHint')}
           action={
-            <Button icon={MessageSquarePlus} onClick={() => navigate('/')}>
+            <Button icon={MessageSquarePlus} onClick={() => navigate('/new')}>
               {t('nav.new')}
             </Button>
           }
