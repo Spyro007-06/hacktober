@@ -31,7 +31,7 @@ from typing import Callable, Optional, Protocol
 import numpy as np
 
 from backend.config import Settings
-from backend.errors import bad_input, model_timeout, model_unavailable
+from backend.errors import AppError, bad_input, model_timeout, model_unavailable
 
 log = logging.getLogger("kural.stt")
 
@@ -40,7 +40,8 @@ MAX_CONCURRENT_REQUESTS = 3  # one transcribing + two waiting; more get a 503
 # Declared Content-Types accepted. The declared type is NOT trusted (the file header
 # decides); this only rejects uploads that are plainly not WAV/WebM audio.
 ALLOWED_MIME = {"", "application/octet-stream", "audio/webm", "video/webm",
-                "audio/wav", "audio/x-wav", "audio/wave", "audio/vnd.wave"}
+                "audio/wav", "audio/x-wav", "audio/wave", "audio/vnd.wave",
+                "audio/mp4", "video/mp4", "audio/x-m4a", "audio/m4a"}  # mp4: Safari/iOS recordings
 REQUIRED_MODEL_FILES = ("config.json", "model.bin", "tokenizer.json")
 
 _request_slots = threading.BoundedSemaphore(MAX_CONCURRENT_REQUESTS)
@@ -98,12 +99,16 @@ class STTEngine(Protocol):
 
 # -- validation ----------------------------------------------------------------------------
 def detect_format(data: bytes) -> str:
-    """WAV and WebM only (PRD p.9). Decided by the file header, not by name or MIME."""
+    """WAV and WebM (PRD p.9), plus MP4/M4A, which the frontend records on Safari/iOS where
+    MediaRecorder cannot make WebM (docs/frontend-requirements.md). Decided by the file
+    header, not by name or MIME."""
     if len(data) >= 12 and data[:4] == b"RIFF" and data[8:12] == b"WAVE":
         return "wav"
     if data[:4] == b"\x1a\x45\xdf\xa3" and b"webm" in data[:64]:  # EBML header + DocType "webm"
         return "webm"
-    raise bad_input("Unsupported audio format. Use WebM or WAV.")
+    if len(data) >= 12 and data[4:8] == b"ftyp":  # ISO base media file (MP4 / M4A)
+        return "mp4"
+    raise bad_input("Unsupported audio format. Use WebM, MP4 or WAV.")
 
 
 def validate_upload(data: bytes, content_type: Optional[str], max_bytes: int) -> str:
@@ -113,7 +118,7 @@ def validate_upload(data: bytes, content_type: Optional[str], max_bytes: int) ->
         raise bad_input(f"The audio file is larger than {max_bytes // (1024 * 1024)} MB.")
     declared = (content_type or "").split(";")[0].strip().lower()
     if declared not in ALLOWED_MIME:
-        raise bad_input("Unsupported audio type. Use WebM or WAV.")
+        raise bad_input("Unsupported audio type. Use WebM, MP4 or WAV.")
     return detect_format(data)
 
 
@@ -129,11 +134,15 @@ def decode_audio_bytes(data: bytes, max_seconds: float) -> np.ndarray:
         log.error("PyAV import failed error_type=%s detail=%s", type(exc).__name__, detail)
         raise model_unavailable(message)
 
+    try:  # restrict FFmpeg to the one demuxer the header says this is, instead of probing them all
+        container_format: Optional[str] = detect_format(data)
+    except AppError:
+        container_format = None  # unreadable data is reported below
     max_samples = int(max_seconds * SAMPLE_RATE)
     parts: list[np.ndarray] = []
     total = 0
     try:
-        with av.open(io.BytesIO(data), mode="r") as container:  # a buffer only: never a path or URL
+        with av.open(io.BytesIO(data), mode="r", format=container_format) as container:  # a buffer only: never a path or URL
             if not container.streams.audio:
                 raise bad_input("The file has no audio track.")
             resampler = av.AudioResampler(format="s16", layout="mono", rate=SAMPLE_RATE)

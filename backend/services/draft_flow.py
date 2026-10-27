@@ -38,6 +38,8 @@ PDF_PHOTO_MAX_DIM = 1600  # px, longest side of a photo embedded in the PDF
 # may be cleared (min 0); the summaries may not.
 FIELD_LIMITS = {"summary_en": (1, 2000), "summary_ta": (1, 2000),
                 "location_text": (0, 500), "duration": (0, 200)}
+MAX_REQUESTED_INFO = 20  # RTI questions; each at most INFO_ITEM_CHARS long
+INFO_ITEM_CHARS = 500
 
 PortalSource = Literal[
     "summary_en", "summary_ta", "summary_bilingual", "location_text", "duration",
@@ -92,11 +94,12 @@ def _next_steps(route: Route, dept: Department, verified: bool, rules: RulesConf
     return out
 
 
-def _values(session: Session, edits: dict[str, str]) -> dict[str, Optional[str]]:
+def _values(session: Session, edits: dict) -> dict:
     e = session.extraction
-    vals: dict[str, Optional[str]] = {
+    vals: dict = {
         "summary_en": e.summary_en, "summary_ta": e.summary_ta,
         "location_text": e.location_text, "duration": e.duration,
+        "requested_info": list(e.requested_info),
     }
     vals.update(edits)  # the citizen's edits win; "" means cleared
     return vals
@@ -130,7 +133,7 @@ def _context(draft: Draft, session: Session, rules: RulesConfig, portal: PortalF
         "demo_notice": rules.next_steps.demo_notice.model_dump(),
         "complainant": draft.complainant.model_dump(),
         "category": e.category, **vals,
-        "photo_findings": e.photo_findings, "requested_info": e.requested_info,
+        "photo_findings": e.photo_findings,
         "portal_fields": portal_fields, "portal_fields_verified": draft.portal_fields_verified,
         "next_steps": next_steps, "evidence_photos": evidence_photos,
     }
@@ -143,9 +146,12 @@ def assemble(draft: Draft, session: Session, rules: RulesConfig,
     draft's trusted stored parts plus the citizen's edits. The preview HTML never
     contains photos; they are added only when building the PDF."""
     context, portal_fields, next_steps = _context(draft, session, rules, portal, [])
+    vals = _values(session, draft.edited_fields)
     return draft.model_copy(update={
         "html": render_html(env, draft.effective_route, context),
         "portal_fields": portal_fields, "next_steps": next_steps,
+        # What the preview's Edit mode starts from: null becomes "" for the text boxes.
+        "editable_fields": {k: (vals[k] if k == "requested_info" else (vals[k] or "")) for k in EDITABLE_FIELDS},
     })
 
 
@@ -204,12 +210,27 @@ def create_draft(db: Database, lookup: DepartmentLookup, rules: RulesConfig,
     return draft
 
 
-def _clean_edits(fields: dict[str, str]) -> dict[str, str]:
+def _clean_info(items) -> list[str]:
+    if not isinstance(items, list):
+        raise bad_input("'requested_info' must be a list of questions.")
+    out = [i.strip() for i in items if i.strip()]  # blank lines are dropped
+    if len(out) > MAX_REQUESTED_INFO or any(len(i) > INFO_ITEM_CHARS for i in out):
+        raise bad_input(f"'requested_info' may have at most {MAX_REQUESTED_INFO} items of "
+                        f"{INFO_ITEM_CHARS} characters.")
+    return out
+
+
+def _clean_edits(fields: dict) -> dict:
     unknown = sorted(set(fields) - set(EDITABLE_FIELDS))
     if unknown:
         raise bad_input(f"Not editable: {', '.join(unknown)}. Editable: {', '.join(EDITABLE_FIELDS)}.")
-    out: dict[str, str] = {}
+    out: dict = {}
     for key, value in fields.items():
+        if key == "requested_info":
+            out[key] = _clean_info(value)
+            continue
+        if not isinstance(value, str):
+            raise bad_input(f"'{key}' must be text.")
         value = value.strip()
         lo, hi = FIELD_LIMITS[key]
         if len(value) < lo or len(value) > hi:
@@ -262,5 +283,5 @@ def to_response(d: Draft) -> DraftResponse:
         route_override=d.route_override, department=d.department,
         department_verified=d.department_verified, html=d.html,
         portal_fields=d.portal_fields, portal_fields_verified=d.portal_fields_verified,
-        next_steps=d.next_steps,
+        next_steps=d.next_steps, editable_fields=d.editable_fields,
     )

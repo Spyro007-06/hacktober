@@ -1,7 +1,7 @@
 """The seven Pydantic models from PRD p.6-7, plus the small additions approved
 in decision D5 (marked "added")."""
 from datetime import date, datetime
-from typing import Literal, Optional
+from typing import Literal, Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -114,6 +114,14 @@ class Session(BaseModel):
     photo_mismatch_confirmed: bool = False  # added: citizen confirmed the photo anyway
 
 
+class SessionDetail(Session):
+    """GET /api/sessions/{id}: the full stored session plus the fields of SessionResponse that
+    the frontend reads after a refresh (it uses `session_id`, and `notice` for R5)."""
+
+    session_id: str
+    notice: Optional[dict[str, str]] = None
+
+
 class SessionResponse(BaseModel):
     """Response of POST /api/sessions and POST /api/sessions/{id}/answers (PRD p.9-10)."""
 
@@ -128,7 +136,7 @@ class SessionResponse(BaseModel):
 
 # Generated text the citizen may edit in the preview (PRD p.11: only
 # Gemma-written fields and complainant details). Everything else is fixed.
-EDITABLE_FIELDS = ("summary_en", "summary_ta", "location_text", "duration")
+EDITABLE_FIELDS = ("summary_en", "summary_ta", "location_text", "duration", "requested_info")
 
 
 class Draft(BaseModel):
@@ -148,7 +156,10 @@ class Draft(BaseModel):
     department_verified: bool = False
     portal_fields_verified: bool = False
     # added: citizen edits to EDITABLE_FIELDS, applied on top of the extraction.
-    edited_fields: dict[str, str] = Field(default_factory=dict)
+    edited_fields: dict[str, Union[str, list[str]]] = Field(default_factory=dict)
+    # added: the current value of every editable field (edits applied), for the preview's
+    # Edit mode (docs/frontend-requirements.md); recomputed whenever the draft is rebuilt.
+    editable_fields: dict[str, Union[str, list[str]]] = Field(default_factory=dict)
     # added: set on an escalation draft (POST /api/complaints/{id}/escalate); the
     # complaint filed from it records this as its parent.
     parent_complaint_id: Optional[str] = None
@@ -192,7 +203,7 @@ class DraftPatch(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    fields: dict[str, str] = Field(default_factory=dict, max_length=10)
+    fields: dict[str, Union[str, list[str]]] = Field(default_factory=dict, max_length=10)
     complainant: Optional[ComplainantPatch] = None
 
 
@@ -209,6 +220,7 @@ class DraftResponse(BaseModel):
     portal_fields: dict[str, str]
     portal_fields_verified: bool  # False = labels not confirmed against the real form
     next_steps: dict[str, str]
+    editable_fields: dict[str, Union[str, list[str]]] = Field(default_factory=dict)  # added: see Draft
 
 
 class Complaint(BaseModel):  # P0 history, stored in SQLite
