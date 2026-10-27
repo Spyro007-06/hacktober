@@ -8,7 +8,41 @@ FastAPI backend for Kural, an AI-powered civic complaint assistant. The spec is
 a Gemini or Ollama provider, strict validation, deterministic routing), and
 `POST /api/drafts`, `PATCH /api/drafts/{id}` (bilingual HTML drafts, see "Drafts") and
 `GET /api/drafts/{id}/pdf` (see "PDF export"), and `POST /api/transcribe` (see "Speech to text").
-Not implemented: TTS, complaints, and all P1 endpoints.
+Also implemented: `PUT /api/config/mode`, `POST /api/tts` and `POST`/`GET /api/complaints` with
+`POST /api/complaints/{id}/escalate` (see "Mode, speech output and complaint history").
+Not implemented: GPS ward detection (P1) and any submission to government portals (out of scope).
+
+## Mode, speech output and complaint history
+
+- **`PUT /api/config/mode`** `{"mode": "online" | "offline"}` returns the same body as `GET /api/health`.
+  The switch is in memory only (`.env` is never written; a restart returns to `MODEL_MODE`). A mode
+  that is not fully configured (no `OLLAMA_MODEL`, or no `GEMINI_API_KEY`/`GEMINI_MODEL`) is a `503`
+  and the current mode stays. Online sends complaint text and photos to Google; the Gemini path is
+  still unverified here.
+- **`POST /api/tts`** `{"text", "language": "ta"|"en"}` returns `audio/wav`, or `501 TTS_UNAVAILABLE`
+  when no engine or no voice for that language is configured (the UI then shows text only). Speech
+  comes from Piper (GPL-3.0), which is **not** a Kural dependency: it runs as a separate local process.
+  Set `TTS_ENGINE=piper`, `TTS_PIPER_PYTHON` (the `python.exe` of a venv with `piper-tts`) and
+  `TTS_VOICE_TA` / `TTS_VOICE_EN` (Piper `.onnx` voices). Tamil was checked with the community voice
+  `ta_IN-rasa_male-medium` (CC-BY-4.0, AI4Bharat Rasa; attribution required). No English voice is
+  installed, so English answers `501` until `TTS_VOICE_EN` is set. Text is limited to `TTS_MAX_CHARS`,
+  is never logged or stored, and the command is a fixed argument list with the text on stdin.
+- **`POST /api/complaints`** `{"draft_id", "filed_on": "YYYY-MM-DD"}` records that the citizen filed a
+  draft (Kural submits nothing itself). `due_on` = `filed_on` + the department's `response_days`;
+  the date cannot be in the future; filing the same draft again returns the same complaint.
+- **`GET /api/complaints`** lists complaints with `days_left` (negative once overdue) and a computed
+  `overdue` status. `due_date_verified` is `false` while the department data are demo placeholders:
+  do not present those dates as official.
+- **`POST /api/complaints/{id}/escalate`** returns a new draft (same shape as `POST /api/drafts`) for the
+  next rung, decided in Python (`routing.escalation_decision`): local body -> CM Helpline level 1;
+  CM Helpline level n -> n+1; level 3 -> RTI asking for action taken (R4). Only an **overdue** complaint
+  can escalate; an RTI is the end of the ladder. The wording is fixed text in `rules.json` filled with
+  the stored complaint's own reference and dates (Tamil wording needs native review). The original
+  complaint becomes `escalated` only when the escalation draft is filed with `POST /api/complaints`.
+
+Known frontend mismatches (not fixed here): the frontend sends `confirm_photo_mismatch` to
+`/answers`, but this backend expects the answer key `photo_mismatch` = `confirm`; and it does not yet
+send `input_source` / `transcript_confirmed` to `POST /api/sessions` (typed text still works).
 
 ## Setup (Windows, Python 3.14)
 

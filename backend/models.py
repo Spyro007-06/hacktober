@@ -149,6 +149,9 @@ class Draft(BaseModel):
     portal_fields_verified: bool = False
     # added: citizen edits to EDITABLE_FIELDS, applied on top of the extraction.
     edited_fields: dict[str, str] = Field(default_factory=dict)
+    # added: set on an escalation draft (POST /api/complaints/{id}/escalate); the
+    # complaint filed from it records this as its parent.
+    parent_complaint_id: Optional[str] = None
 
     @property
     def effective_route(self) -> Route:
@@ -226,3 +229,48 @@ class Complaint(BaseModel):  # P0 history, stored in SQLite
         if self.status == "filed" and self.due_on < today:
             return "overdue"
         return self.status
+
+
+class ComplaintCreate(BaseModel):
+    """Body of POST /api/complaints: the citizen records that they filed this draft."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    draft_id: str = Field(min_length=1, max_length=64)
+    filed_on: date
+
+
+class ComplaintListItem(BaseModel):
+    """One row of GET /api/complaints (PRD p.12): the tracker with days left."""
+
+    id: str
+    draft_id: str
+    title: str
+    route: Route
+    category: Category
+    location_text: Optional[str] = None
+    ward: Optional[str] = None
+    filed_on: date
+    due_on: date
+    days_left: int  # negative once overdue
+    due_date_verified: bool = False  # False = response_days come from demo placeholder data
+    status: ComplaintStatus
+    parent_complaint_id: Optional[str] = None
+    escalation_level: int = Field(1, ge=1, le=3)
+
+
+class ModeBody(BaseModel):
+    """Body of PUT /api/config/mode."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    mode: Literal["online", "offline"]
+
+
+class TtsBody(BaseModel):
+    """Body of POST /api/tts. The text length limit is enforced by the TTS service."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    text: str
+    language: Literal["ta", "en"]

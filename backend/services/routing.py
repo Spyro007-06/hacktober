@@ -49,10 +49,19 @@ class NextStepTexts(BaseModel):
     demo_notice: Localized
 
 
+class EscalationTexts(BaseModel):
+    """Fixed bilingual wording for an escalation draft (reviewable data, never
+    model-written). Placeholders: {complaint_id}, {filed_on}, {due_on}."""
+
+    note: Localized
+    rti_questions: list[Localized]
+
+
 class RulesConfig(BaseModel):
     spans_departments_categories: list[str] = []
     rules: dict[RuleId, RuleText]
     next_steps: NextStepTexts
+    escalation: EscalationTexts
     not_civic_notice: NotCivicNotice
     # Fixed follow-up wording per required field (never model-written).
     follow_up_questions: dict[str, QuestionText]
@@ -109,6 +118,25 @@ def _decision(cfg: RulesConfig, rid: RuleId, level: int = 1) -> RouteDecision:
         route=r.route, rule_id=rid, reason_en=r.reason_en,
         reason_ta=r.reason_ta, escalation_level=level,
     )
+
+
+def escalation_decision(
+    complaint: Complaint, cfg: RulesConfig, today: date
+) -> Optional[RouteDecision]:
+    """The next rung for an overdue filed complaint (PRD p.3 ladder), or None when
+    it cannot escalate (not overdue, or an RTI, the end of the ladder).
+
+    local body -> CM Helpline level 1 (R3); CM Helpline level n -> level n+1 (R3);
+    CM Helpline level 3 -> RTI asking for action taken (R4)."""
+    if complaint.effective_status(today) != "overdue":
+        return None
+    if complaint.route == "local_body":
+        return _decision(cfg, "R3", 1)
+    if complaint.route == "cm_helpline":
+        if complaint.escalation_level >= 3:
+            return _decision(cfg, "R4")
+        return _decision(cfg, "R3", complaint.escalation_level + 1)
+    return None
 
 
 def decide_route(

@@ -116,6 +116,13 @@ class Database:
             row = conn.execute("SELECT * FROM complaints WHERE id=?", (complaint_id,)).fetchone()
         return self._complaint(row) if row else None
 
+    def get_complaint_for_draft(self, draft_id: str) -> Optional[Complaint]:
+        """The complaint filed from this draft, if any (a draft is filed once)."""
+        with self.connect() as conn:
+            row = conn.execute("SELECT * FROM complaints WHERE draft_id=? ORDER BY id LIMIT 1",
+                               (draft_id,)).fetchone()
+        return self._complaint(row) if row else None
+
     def list_complaints(self) -> list[Complaint]:
         with self.connect() as conn:
             rows = conn.execute("SELECT * FROM complaints ORDER BY filed_on DESC, id").fetchall()
