@@ -7,7 +7,7 @@ import Segmented from '../ui/Segmented'
 import ModeToggle from '../ModeToggle'
 
 const NAV = [
-  { to: '/', key: 'nav.new', icon: MessageSquarePlus, end: true },
+  { to: '/new', key: 'nav.new', icon: MessageSquarePlus, end: true },
   { to: '/complaints', key: 'nav.complaints', icon: ClipboardList },
 ]
 
