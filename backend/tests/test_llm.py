@@ -387,3 +387,86 @@ def test_secret_never_appears_in_logs_or_error_bodies(settings, caplog):
     assert KEY not in r.text and KEY not in caplog.text
     assert "Gandhi Street" not in caplog.text  # complaint text is never logged
 
+
+
+# -- transient Gemini errors are retried -----------------------------------------------------
+def counting(statuses, calls):
+    """A handler answering with each status in turn (200 returns a reply), counting the calls."""
+    def handler(request):
+        status = statuses[min(len(calls), len(statuses) - 1)]
+        calls.append(status)
+        return gemini_reply('{"ok": true}') if status == 200 else httpx.Response(status, json={"error": "x"})
+    return handler
+
+
+def test_gemini_retries_transient_500s_then_succeeds(monkeypatch):
+    real_sleep = asyncio.sleep
+    monkeypatch.setattr(llm.asyncio, "sleep", lambda s: real_sleep(0))
+    calls = []
+    p = gemini(counting([500, 503, 200], calls))
+    assert run(p.generate_json("PROMPT", [], SCHEMA)) == '{"ok": true}'
+    assert calls == [500, 503, 200]
+
+
+def test_gemini_gives_up_after_two_retries(monkeypatch):
+    real_sleep = asyncio.sleep
+    monkeypatch.setattr(llm.asyncio, "sleep", lambda s: real_sleep(0))
+    calls = []
+    p = gemini(counting([500], calls))
+    with pytest.raises(AppError) as exc:
+        run(p.generate_json("PROMPT", [], SCHEMA))
+    assert exc.value.code == "MODEL_UNAVAILABLE" and calls == [500, 500, 500]
+
+
+@pytest.mark.parametrize("status", [401, 403, 404, 429, 504])
+def test_gemini_does_not_retry_credentials_quota_or_timeouts(status):
+    calls = []
+    p = gemini(counting([status], calls))
+    with pytest.raises(AppError):
+        run(p.generate_json("PROMPT", [], SCHEMA))
+    assert calls == [status]
+
+
+def test_ollama_is_never_retried():
+    calls = []
+    p = ollama(lambda request: (calls.append(1), httpx.Response(500, json={}))[1])
+    with pytest.raises(AppError):
+        run(p.generate_json("PROMPT", [], SCHEMA))
+    assert calls == [1]
+
+
+def test_gemini_retries_a_stalled_call_then_succeeds():
+    calls = []
+
+    def handler(request):
+        calls.append(1)
+        if len(calls) == 1:
+            raise httpx.ReadTimeout("stalled", request=request)
+        return gemini_reply('{"ok": true}')
+
+    assert run(gemini(handler).generate_json("PROMPT", [], SCHEMA)) == '{"ok": true}'
+    assert len(calls) == 2
+
+
+def test_gemini_times_out_after_every_attempt_stalls():
+    calls = []
+
+    def handler(request):
+        calls.append(1)
+        raise httpx.ReadTimeout("stalled", request=request)
+
+    with pytest.raises(AppError) as exc:
+        run(gemini(handler).generate_json("PROMPT", [], SCHEMA))
+    assert exc.value.code == "MODEL_TIMEOUT" and len(calls) == 3
+
+
+def test_ollama_timeouts_are_not_retried():
+    calls = []
+
+    def handler(request):
+        calls.append(1)
+        raise httpx.ReadTimeout("stalled", request=request)
+
+    with pytest.raises(AppError) as exc:
+        run(ollama(handler).generate_json("PROMPT", [], SCHEMA))
+    assert exc.value.code == "MODEL_TIMEOUT" and len(calls) == 1
