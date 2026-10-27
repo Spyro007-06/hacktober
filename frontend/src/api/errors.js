@@ -7,6 +7,8 @@ const KNOWN = new Set([
   'NO_DEPARTMENT',
   'MODEL_UNAVAILABLE',
   'MODEL_TIMEOUT',
+  'NO_SPEECH',
+  'NO_SOUND',
   'PDF_UNAVAILABLE',
   'NETWORK',
 ])

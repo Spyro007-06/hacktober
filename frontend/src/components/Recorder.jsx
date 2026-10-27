@@ -56,9 +56,11 @@ function ClipRow({ clip, index, playing, onTogglePlay }) {
       {clip.status === 'error' && (
         <div className="flex w-full flex-wrap items-center gap-3 border-t border-line pt-2" role="alert">
           <p className="flex-1 text-support text-danger">{t(errorKey(clip.error))}</p>
-          <Button variant="secondary" icon={RotateCcw} onClick={() => retryClip(clip)}>
-            {t('btn.retry')}
-          </Button>
+          {clip.error?.code !== 'NO_SOUND' && (
+            <Button variant="secondary" icon={RotateCcw} onClick={() => retryClip(clip)}>
+              {t('btn.retry')}
+            </Button>
+          )}
         </div>
       )}
     </motion.li>
@@ -68,7 +70,7 @@ function ClipRow({ clip, index, playing, onTogglePlay }) {
 export default function Recorder() {
   const { t } = useLanguage()
   const { clips, addClip, complaintLang, setComplaintLang, pending } = useComplaint()
-  const { start, stop, isRecording, secondsLeft, error, supported } = useRecorder({ maxSeconds: MAX_SECONDS, onStop: addClip })
+  const { start, stop, isRecording, secondsLeft, error, level, supported } = useRecorder({ maxSeconds: MAX_SECONDS, onStop: addClip })
   const [playingId, setPlayingId] = useState(null)
   const audioRef = useRef(null)
 
@@ -156,6 +158,9 @@ export default function Recorder() {
             <div role="timer" aria-live="off">
               <p className="text-3xl font-bold tabular-nums text-heading">{formatSeconds(secondsLeft)}</p>
               <p className="text-muted">{t('rec.secondsLeft', { n: secondsLeft })}</p>
+              <div aria-hidden="true" className="mx-auto mt-3 h-2 w-40 overflow-hidden rounded-full bg-surface">
+                <div className="h-full rounded-full bg-heading transition-[width] duration-100" style={{ width: `${Math.min(100, level * 200)}%` }} />
+              </div>
             </div>
           ) : (
             <p className="font-medium text-text">{transcribing ? t('loading.transcribing') : clips.length ? t('rec.addClip') : t('rec.idle')}</p>
