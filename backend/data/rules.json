@@ -63,6 +63,22 @@
       "ta": "டெமோ தரவு: இந்த ஆவணத்திலுள்ள துறை விவரங்கள் மாதிரி விவரங்கள்; அவை சரிபார்க்கப்படவில்லை. இவற்றை நம்ப வேண்டாம்."
     }
   },
+  "escalation": {
+    "note": {
+      "en": "I filed this complaint on {filed_on} (reference {complaint_id}). The response period ended on {due_on} and I have received no reply.",
+      "ta": "இந்தப் புகாரை {filed_on} அன்று அளித்தேன் (குறிப்பு எண் {complaint_id}). பதில் அளிக்க வேண்டிய காலம் {due_on} அன்று முடிந்துவிட்டது; எனக்கு எந்தப் பதிலும் கிடைக்கவில்லை."
+    },
+    "rti_questions": [
+      {
+        "en": "What action has been taken on my complaint (reference {complaint_id}) filed on {filed_on}?",
+        "ta": "{filed_on} அன்று அளித்த எனது புகார் (குறிப்பு எண் {complaint_id}) மீது என்ன நடவடிக்கை எடுக்கப்பட்டுள்ளது?"
+      },
+      {
+        "en": "Which officer is responsible for it, and why was it not resolved by {due_on}?",
+        "ta": "அதற்குப் பொறுப்பான அதிகாரி யார்? {due_on} க்குள் அது ஏன் தீர்க்கப்படவில்லை?"
+      }
+    ]
+  },
   "not_civic_notice": {
     "en": "Kural does not cover this kind of problem.",
     "ta": "இந்த வகைப் பிரச்சினையை குரல் (Kural) கையாளாது."

@@ -12,11 +12,13 @@ from backend.db import Database
 from backend.errors import register_error_handlers
 from backend.logging_config import setup_logging
 from backend.routers import complaints, drafts, sessions, system, transcribe
+from backend.routers import tts as tts_router
 from backend.services.draft_flow import PortalFieldsConfig
 from backend.services.lookup import DepartmentLookup
 from backend.services.render import check_templates, make_env
 from backend.services.routing import RulesConfig
 from backend.services.stt import build_engine
+from backend.services.tts import build_tts
 
 log = logging.getLogger("kural")
 
@@ -43,6 +45,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                         settings.stt_engine)
         elif (problem := app.state.stt_engine.check_files()):
             log.warning("speech model not ready: %s (/api/transcribe will return 503)", problem)
+        app.state.tts = build_tts(settings)  # None when TTS_ENGINE=none: /api/tts answers 501
         if not app.state.portal.verified:
             log.warning("portal_fields.json labels are UNVERIFIED placeholders")
         unverified = app.state.lookup.unverified_ids()
@@ -70,7 +73,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                  response.status_code, (time.perf_counter() - start) * 1000)
         return response
 
-    for module in (system, sessions, drafts, complaints, transcribe):
+    for module in (system, sessions, drafts, complaints, transcribe, tts_router):
         app.include_router(module.router)
     return app
 
