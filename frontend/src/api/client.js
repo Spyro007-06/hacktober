@@ -64,7 +64,11 @@ export function transcribe(audio, language) {
   const form = new FormData()
   form.append('audio', audio, audioFilename(audio))
   form.append('language', language)
-  return request('POST', '/transcribe', { form })
+  return request('POST', '/transcribe', { form }).catch((err) => {
+    // The backend answers 400 when its speech filter finds no voice or no sound at all.
+    if (err.code === 'BAD_INPUT' && /no speech|no sound/i.test(err.message)) throw new ApiError('NO_SPEECH', err.status, err.message)
+    throw err
+  })
 }
 
 /** photos: File[] (0-3). lat/lon only when the user explicitly shared location. */

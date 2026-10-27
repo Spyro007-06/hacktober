@@ -116,6 +116,8 @@
   "error.MODEL_UNAVAILABLE": "The AI service is unavailable. Check the connection or switch to offline mode.",
   "error.MODEL_TIMEOUT": "This is taking too long. Please try again.",
   "error.PDF_UNAVAILABLE": "The PDF can't be made right now. Your draft is safe; try again shortly.",
+  "error.NO_SPEECH": "We could not hear any speech in that clip. Speak closer to the microphone and try again, or type your complaint.",
+  "error.NO_SOUND": "No sound reached the microphone. Check that it is not muted and that the right microphone is selected, then record again.",
   "error.NETWORK": "Can't reach Kural. Is the server running?",
   "error.UNKNOWN": "Something went wrong. Please try again.",
   "mode.online": "Online",
